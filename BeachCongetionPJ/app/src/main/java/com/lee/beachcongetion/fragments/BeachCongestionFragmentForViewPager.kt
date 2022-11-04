@@ -1,11 +1,13 @@
 package com.lee.beachcongetion.fragments
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.*
 import com.lee.beachcongetion.databinding.FragmentBeachItemBinding
 
@@ -35,17 +37,29 @@ class BeachCongestionFragmentForViewPager : Fragment() {
 
         binding = FragmentBeachItemBinding.inflate(inflater , container , false)
         arguments?.let {
-            Log.d(TAG, "onCreateView: Arguments is not null create fragment!!")
             binding.beachName.text = arguments?.getString(EXTRA_BEACH_NAME)
             binding.beachCongestion.text = when(arguments?.getString(EXTRA_CONGESTION)){
                 NORMAL -> {
-                    "보통"
+                    with(binding){
+                        beachCongestion.setTextColor(Color.parseColor("#00ff2a"))
+                        congestionSmile.setImageResource(R.drawable.ic_baseline_sentiment_very_satisfied_24)
+                    }
+                    "좋음"
                 }
                 FEW_CONGEST -> {
-                    "약간 혼잡"
+                    with(binding){
+                        beachCongestion.setTextColor(Color.parseColor("#ffe900"))
+                        congestionSmile.setImageResource(R.drawable.ic_baseline_sentiment_neutral_24)
+                    }
+
+                    "보통"
                 }
                 CONGEST -> {
-                    "매우 혼잡"
+                    with(binding){
+                        beachCongestion.setTextColor(Color.parseColor("#ff0000"))
+                        congestionSmile.setImageResource(R.drawable.ic_baseline_sentiment_very_dissatisfied_24)
+                    }
+                    "혼잡"
                 }
                 else -> {
                     "Error"

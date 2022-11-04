@@ -2,6 +2,11 @@ package com.lee.beachcongetion.retrofit.model
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * Beach Congestion List
+ * it has all beaches list and each beach's key
+ * **/
+
 class BeachCongestionList {
     private lateinit var mBeachList : MutableList<BeachCongestionModel>
 

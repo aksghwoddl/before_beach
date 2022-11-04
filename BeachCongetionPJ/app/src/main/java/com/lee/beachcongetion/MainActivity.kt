@@ -34,6 +34,9 @@ class MainActivity : AppCompatActivity() {
         receiveBeachCongestion()
     }
 
+    /**
+     *  Function that get Beach congestion with Coroutine
+     * **/
     private fun receiveBeachCongestion() {
         mJob = CoroutineScope(Dispatchers.IO).launch {
             val response = BeachCongestionService.getInstance().getBeachCongestion()
