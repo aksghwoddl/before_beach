@@ -1,4 +1,4 @@
-package com.lee.beachcongetion
+package com.lee.beachcongetion.retrofit.model
 data class BeachCongestionModel(
     val etlDT : String ,
     val seqID : Int ,
