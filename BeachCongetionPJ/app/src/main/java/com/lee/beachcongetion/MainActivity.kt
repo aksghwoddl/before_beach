@@ -18,6 +18,7 @@ import com.lee.beachcongetion.databinding.ActivityMainBinding
 import com.lee.beachcongetion.retrofit.BeachCongestionService
 import com.lee.beachcongetion.retrofit.model.BeachCongestionModel
 import kotlinx.coroutines.*
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         }
         mBeachRecyclerAdapter = BeachRecyclerAdapter()
         binding.progressBar.visibility = View.VISIBLE
+        initRecyclerView()
     }
 
     override fun onResume() {
@@ -51,8 +53,11 @@ class MainActivity : AppCompatActivity() {
                 if(response.isSuccessful){
                     response.body()?.let {
                         mBeachList = response.body()!!.getAllBeachList()
+                        // For testing function that beach congestion light
+                        mBeachList.forEach {
+                            it.congestion = Random.nextInt(1,4).toString()
+                        }
                         mBeachRecyclerAdapter.setList(mBeachList)
-                        initRecyclerView()
                         mBeachRecyclerAdapter.notifyItemRangeChanged(0 , mBeachRecyclerAdapter.itemCount)
                     }?:let {
                         Log.d(TAG, "receiveBeachCongestion: response body is null!!")
@@ -67,11 +72,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Function that initialize RecyclerView
+     * **/
     private fun initRecyclerView() {
         val snapHelper = PagerSnapHelper()
         with(binding) {
-            beachRecyclerView.layoutManager =
-                LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
+            beachRecyclerView.layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
+            mBeachRecyclerAdapter.setOnItemClickListener(object : BeachRecyclerAdapter.OnItemClickListener{
+                override fun onItemClick(v: View, data: BeachCongestionModel, pos: Int) {
+                    val gmmUri = Uri.parse(String.format("geo:37.7749,-122.4194?q=%s", Uri.encode(data.poiNm + "해수욕장")))
+                    with(Intent(Intent.ACTION_VIEW , gmmUri)){
+                        setPackage("com.google.android.apps.maps")
+                        startActivity(this)
+                    }
+                }
+            })
             beachRecyclerView.adapter = mBeachRecyclerAdapter
             snapHelper.attachToRecyclerView(beachRecyclerView)
         }
