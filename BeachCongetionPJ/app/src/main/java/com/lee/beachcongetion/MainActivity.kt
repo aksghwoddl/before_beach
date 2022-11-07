@@ -49,14 +49,14 @@ class MainActivity : AppCompatActivity() {
     private fun receiveBeachCongestion() {
         mJob = CoroutineScope(Dispatchers.IO).launch {
             val response = BeachCongestionService.getInstance().getBeachCongestion()
+            mBeachList = response.body()!!.getAllBeachList()
+            // For testing function that beach congestion light
+            mBeachList.forEach {
+                it.congestion = Random.nextInt(1,4).toString()
+            }
             withContext(Dispatchers.Main){
                 if(response.isSuccessful){
                     response.body()?.let {
-                        mBeachList = response.body()!!.getAllBeachList()
-                        // For testing function that beach congestion light
-                        mBeachList.forEach {
-                            it.congestion = Random.nextInt(1,4).toString()
-                        }
                         mBeachRecyclerAdapter.setList(mBeachList)
                         mBeachRecyclerAdapter.notifyItemRangeChanged(0 , mBeachRecyclerAdapter.itemCount)
                     }?:let {
