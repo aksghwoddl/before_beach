@@ -1,5 +1,6 @@
 package com.lee.beachcongetion.retrofit
 
+import com.lee.beachcongetion.common.BEACH_CONGESTION_SUB_URL
 import com.lee.beachcongetion.common.BEACH_CONGESTION_URL
 import com.lee.beachcongetion.retrofit.model.BeachCongestionList
 import retrofit2.Response
@@ -8,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
 interface BeachCongestionService {
-    @GET("/seantour_map/travel/getBeachCongestionApi.do")
+    @GET(BEACH_CONGESTION_SUB_URL)
     suspend fun getBeachCongestion() : Response<BeachCongestionList>
 
     companion object{

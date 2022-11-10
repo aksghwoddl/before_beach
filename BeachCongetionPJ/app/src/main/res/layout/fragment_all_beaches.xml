@@ -3,7 +3,7 @@
     <data>
         <variable
             name="beachListViewModel"
-            type="com.lee.beachcongetion.viewmodel.BeachModel" />
+            type="com.lee.beachcongetion.viewmodel.BeachViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

@@ -4,8 +4,6 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.CONGEST
@@ -13,7 +11,6 @@ import com.lee.beachcongetion.common.FEW_CONGEST
 import com.lee.beachcongetion.common.NORMAL
 import com.lee.beachcongetion.databinding.BeachItemBinding
 import com.lee.beachcongetion.retrofit.model.BeachCongestionModel
-import com.lee.beachcongetion.viewmodel.BeachModel
 
 class BeachRecyclerAdapter() : RecyclerView.Adapter<BeachRecyclerAdapter.BeachViewpagerViewHolder>() {
 
