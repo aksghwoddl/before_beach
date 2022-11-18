@@ -1,8 +1,8 @@
-package com.lee.beachcongetion.retrofit
+package com.lee.beachcongetion.data.retrofit
 
 import com.lee.beachcongetion.common.BEACH_CONGESTION_SUB_URL
 import com.lee.beachcongetion.common.BEACH_CONGESTION_URL
-import com.lee.beachcongetion.retrofit.model.BeachCongestionList
+import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionList
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,8 +15,8 @@ interface BeachCongestionService {
     companion object{
         private lateinit var instance : BeachCongestionService
 
-        fun getInstance() : BeachCongestionService{
-            if(!::instance.isInitialized){
+        fun getInstance() : BeachCongestionService {
+            if(!Companion::instance.isInitialized){
                 val retrofit = Retrofit.Builder()
                     .baseUrl(BEACH_CONGESTION_URL)
                     .addConverterFactory(GsonConverterFactory.create())

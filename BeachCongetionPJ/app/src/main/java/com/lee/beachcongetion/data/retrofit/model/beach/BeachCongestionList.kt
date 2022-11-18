@@ -1,4 +1,4 @@
-package com.lee.beachcongetion.retrofit.model
+package com.lee.beachcongetion.data.retrofit.model.beach
 
 import com.google.gson.annotations.SerializedName
 

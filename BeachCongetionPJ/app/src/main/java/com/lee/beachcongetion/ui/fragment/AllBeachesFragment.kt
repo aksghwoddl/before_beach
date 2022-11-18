@@ -1,4 +1,4 @@
-package com.lee.beachcongetion.fragment
+package com.lee.beachcongetion.ui.fragment
 
 import android.content.Intent
 import android.net.Uri
@@ -7,19 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.lee.beachcongetion.R
-import com.lee.beachcongetion.adapter.BeachRecyclerAdapter
+import com.lee.beachcongetion.ui.adapter.BeachRecyclerAdapter
 import com.lee.beachcongetion.databinding.FragmentAllBeachesBinding
-import com.lee.beachcongetion.factory.BeachViewModelFactory
-import com.lee.beachcongetion.retrofit.model.BeachCongestionModel
-import com.lee.beachcongetion.viewmodel.BeachViewModel
+import com.lee.beachcongetion.ui.factory.BeachViewModelFactory
+import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
+import com.lee.beachcongetion.ui.viewmodel.BeachViewModel
+import net.daum.mf.map.api.MapView
 
 class AllBeachesFragment : Fragment() {
     private val TAG = "AllBeachesFragment"
@@ -27,6 +26,7 @@ class AllBeachesFragment : Fragment() {
 
     private lateinit var mBeachRecyclerAdapter: BeachRecyclerAdapter
     private lateinit var mBeachViewModel : BeachViewModel
+    private lateinit var mMap : MapView
 
     companion object{
         fun newInstance() = AllBeachesFragment()
@@ -37,7 +37,9 @@ class AllBeachesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater , R.layout.fragment_all_beaches , container , false)
+        binding = FragmentAllBeachesBinding.inflate(inflater , container , false)
+        mMap = MapView(context)
+        binding.mapView.addView(mMap)
         return binding.root
     }
 
@@ -58,7 +60,6 @@ class AllBeachesFragment : Fragment() {
 
     private fun initBeachViewModel(){
         mBeachViewModel = ViewModelProvider(this , BeachViewModelFactory())[BeachViewModel::class.java]
-        binding.beachListViewModel = mBeachViewModel
 
         // RecyclerView list observing
         mBeachViewModel.beachList.observe(viewLifecycleOwner , Observer {
@@ -88,7 +89,7 @@ class AllBeachesFragment : Fragment() {
         val snapHelper = PagerSnapHelper()
         mBeachRecyclerAdapter = BeachRecyclerAdapter()
         with(binding) {
-            beachRecyclerView.layoutManager = LinearLayoutManager(context , RecyclerView.HORIZONTAL, false)
+            beachRecyclerView.layoutManager = LinearLayoutManager(context , RecyclerView.VERTICAL, false)
             // Click listener for open google map
             mBeachRecyclerAdapter.setOnItemClickListener(object : BeachRecyclerAdapter.OnItemClickListener{
                 override fun onItemClick(v: View, data: BeachCongestionModel, pos: Int) {
@@ -103,6 +104,4 @@ class AllBeachesFragment : Fragment() {
             snapHelper.attachToRecyclerView(beachRecyclerView)
         }
     }
-
-
 }

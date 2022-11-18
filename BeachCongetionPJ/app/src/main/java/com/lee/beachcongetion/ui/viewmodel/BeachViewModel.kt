@@ -1,9 +1,9 @@
-package com.lee.beachcongetion.viewmodel
+package com.lee.beachcongetion.ui.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.lee.beachcongetion.repository.BeachRepository
-import com.lee.beachcongetion.retrofit.model.BeachCongestionModel
+import com.lee.beachcongetion.data.repository.BeachRepository
+import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
 import kotlinx.coroutines.*
 
 class BeachViewModel(private val repository: BeachRepository) : ViewModel() {

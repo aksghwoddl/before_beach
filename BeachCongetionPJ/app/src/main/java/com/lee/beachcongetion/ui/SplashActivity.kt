@@ -1,4 +1,4 @@
-package com.lee.beachcongetion
+package com.lee.beachcongetion.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -27,7 +27,7 @@ class SplashActivity : AppCompatActivity() {
     private suspend fun startMainActivity(){
         CoroutineScope(Dispatchers.Main).launch {
             delay(1500L)
-            with(Intent(this@SplashActivity ,MainActivity::class.java)){
+            with(Intent(this@SplashActivity , MainActivity::class.java)){
                 startActivity(this)
             }
             finish()

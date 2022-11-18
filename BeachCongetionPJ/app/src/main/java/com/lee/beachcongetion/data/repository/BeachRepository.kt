@@ -1,6 +1,6 @@
-package com.lee.beachcongetion.repository
+package com.lee.beachcongetion.data.repository
 
-import com.lee.beachcongetion.retrofit.BeachCongestionService
+import com.lee.beachcongetion.data.retrofit.BeachCongestionService
 
 class BeachRepository {
     /**
