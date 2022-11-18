@@ -3,4 +3,5 @@
     <string name="header_title">바다로 떠나볼까요??</string>
     <string name="beach_name">해수욕장 이름</string>
     <string name="congestion">혼잡도</string>
+    <string name="kakao_api_key">KakaoAK 1ee587b3808fcfbe3cf5c2062d0940be</string>
 </resources>

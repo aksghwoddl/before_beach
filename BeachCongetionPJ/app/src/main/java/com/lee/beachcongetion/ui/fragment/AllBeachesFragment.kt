@@ -3,6 +3,7 @@ package com.lee.beachcongetion.ui.fragment
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +14,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
+import com.lee.beachcongetion.R
 import com.lee.beachcongetion.ui.adapter.BeachRecyclerAdapter
 import com.lee.beachcongetion.databinding.FragmentAllBeachesBinding
 import com.lee.beachcongetion.ui.factory.BeachViewModelFactory
 import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
 import com.lee.beachcongetion.ui.viewmodel.BeachViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.daum.mf.map.api.MapPOIItem
+import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
+import net.daum.mf.map.api.MapView.MapViewEventListener
+import net.daum.mf.map.api.MapView.OpenAPIKeyAuthenticationResultListener
+import net.daum.mf.map.api.MapView.POIItemEventListener
 
 class AllBeachesFragment : Fragment() {
     private val TAG = "AllBeachesFragment"
@@ -76,10 +87,28 @@ class AllBeachesFragment : Fragment() {
             }
         }
 
-        // For toast message when ocurr error
+        // For toast message when occur error
         mBeachViewModel.errorMessage.observe(viewLifecycleOwner , Observer {
             Toast.makeText(context , "서버에서 정상적으로 정보를 가져오지 못했습니다. : $it", Toast.LENGTH_SHORT).show()
         })
+
+        // For Kakao Poi List
+        mBeachViewModel.poiList.observe(viewLifecycleOwner){
+            mMap.removeAllPOIItems()
+            val poi = it[0]
+            val marker = MapPOIItem()
+            with(marker){
+                itemName = it[0].placeName
+                tag = 0
+                mapPoint = MapPoint.mapPointWithCONGCoord(poi.latitude.toDouble() , poi.longitude.toDouble())
+                markerType = MapPOIItem.MarkerType.BluePin
+                selectedMarkerType = MapPOIItem.MarkerType.RedPin
+            }
+            mMap.addPOIItem(marker)
+            mMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithCONGCoord(poi.longitude.toDouble() , poi.latitude.toDouble())
+                , 17
+                ,true)
+        }
     }
 
     /**
@@ -93,11 +122,8 @@ class AllBeachesFragment : Fragment() {
             // Click listener for open google map
             mBeachRecyclerAdapter.setOnItemClickListener(object : BeachRecyclerAdapter.OnItemClickListener{
                 override fun onItemClick(v: View, data: BeachCongestionModel, pos: Int) {
-                    val gmmUri = Uri.parse(String.format("geo:37.7749,-122.4194?q=%s", Uri.encode(data.poiNm + "해수욕장")))
-                    with(Intent(Intent.ACTION_VIEW , gmmUri)){
-                        setPackage("com.google.android.apps.maps")
-                        startActivity(this)
-                    }
+                    val selectedBeachName = data.poiNm + "해수욕장"
+                    mBeachViewModel.getKakaoPoiList(resources.getString(R.string.kakao_api_key) , selectedBeachName)
                 }
             })
             beachRecyclerView.adapter = mBeachRecyclerAdapter
