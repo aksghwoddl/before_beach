@@ -38,5 +38,5 @@
 
 ### 🎥 시연 화면
 <div align="center">
- <img width="30%" alt="app_main" src="./시연화면/app_running_gif.gif">
+ <img width="30%" alt="app_main" src="./시연화면/app_running.gif">
 </div>
