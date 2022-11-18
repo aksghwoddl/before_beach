@@ -6,6 +6,7 @@ import com.lee.beachcongetion.data.repository.BeachRepository
 import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
 import com.lee.beachcongetion.data.retrofit.model.kakao.Documents
 import com.lee.beachcongetion.data.retrofit.model.kakao.KakaoPoiModel
+import com.lee.beachcongetion.data.retrofit.model.kakao.WcongModel
 import kotlinx.coroutines.*
 
 class BeachViewModel(private val repository: BeachRepository) : ViewModel() {
@@ -51,6 +52,19 @@ class BeachViewModel(private val repository: BeachRepository) : ViewModel() {
                 progressVisible.value = false
             }
         }
+    }
+
+    suspend fun getWcongPoint(key : String, x : String, y : String) : WcongModel? {
+        val deferred = CoroutineScope(Dispatchers.IO).async {
+            val response = repository.getWcongLanLng(key , x, y)
+            if(response.isSuccessful){
+                response.body()!!
+            } else {
+                onError("좌표를 변환하는중 오류가 발생했습니다.")
+                null
+            }
+        }
+        return deferred.await()
     }
 
     private fun onError(message : String) {

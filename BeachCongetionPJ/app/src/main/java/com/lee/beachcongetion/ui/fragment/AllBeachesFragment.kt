@@ -1,9 +1,6 @@
 package com.lee.beachcongetion.ui.fragment
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,14 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import com.lee.beachcongetion.R
-import com.lee.beachcongetion.ui.adapter.BeachRecyclerAdapter
-import com.lee.beachcongetion.databinding.FragmentAllBeachesBinding
-import com.lee.beachcongetion.ui.factory.BeachViewModelFactory
 import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
+import com.lee.beachcongetion.databinding.FragmentAllBeachesBinding
+import com.lee.beachcongetion.ui.adapter.BeachRecyclerAdapter
+import com.lee.beachcongetion.ui.factory.BeachViewModelFactory
 import com.lee.beachcongetion.ui.viewmodel.BeachViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,9 +22,6 @@ import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
-import net.daum.mf.map.api.MapView.MapViewEventListener
-import net.daum.mf.map.api.MapView.OpenAPIKeyAuthenticationResultListener
-import net.daum.mf.map.api.MapView.POIItemEventListener
 
 class AllBeachesFragment : Fragment() {
     private val TAG = "AllBeachesFragment"
@@ -96,18 +88,33 @@ class AllBeachesFragment : Fragment() {
         mBeachViewModel.poiList.observe(viewLifecycleOwner){
             mMap.removeAllPOIItems()
             val poi = it[0]
-            val marker = MapPOIItem()
-            with(marker){
-                itemName = it[0].placeName
-                tag = 0
-                mapPoint = MapPoint.mapPointWithCONGCoord(poi.latitude.toDouble() , poi.longitude.toDouble())
-                markerType = MapPOIItem.MarkerType.BluePin
-                selectedMarkerType = MapPOIItem.MarkerType.RedPin
+
+            // Convert WNG84 to WCONG because kakao map use WCONG coordinate system
+            // mapPointWithGeoCoord was not work so I convert coordinate by using api
+
+            CoroutineScope(Dispatchers.IO).launch{
+                val wcongModel = mBeachViewModel.getWcongPoint(resources.getString(R.string.kakao_api_key ), poi.longitude , poi.latitude)?.documents
+                wcongModel?.let {
+                   val longitude = it[0].longitude.toDouble()
+                   val latitude = it[0].latitude.toDouble()
+                    CoroutineScope(Dispatchers.Main).launch{
+                        val marker = MapPOIItem()
+                        with(marker){
+                            itemName = poi.placeName
+                            tag = 0
+                            mapPoint = MapPoint.mapPointWithWCONGCoord(longitude , latitude)
+                            markerType = MapPOIItem.MarkerType.BluePin
+                            selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                        }
+                        mMap.addPOIItem(marker)
+                        mMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithWCONGCoord(longitude , latitude)
+                            , 4
+                            ,true)
+                    }
+                }?:let {
+                    mBeachViewModel.errorMessage.postValue("좌표를 변환중 문제가 발생했습니다.")
+                }
             }
-            mMap.addPOIItem(marker)
-            mMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithCONGCoord(poi.longitude.toDouble() , poi.latitude.toDouble())
-                , 17
-                ,true)
         }
     }
 
@@ -115,11 +122,9 @@ class AllBeachesFragment : Fragment() {
      * Function that initialize RecyclerView
      * **/
     private fun initRecyclerView() {
-        val snapHelper = PagerSnapHelper()
         mBeachRecyclerAdapter = BeachRecyclerAdapter()
         with(binding) {
             beachRecyclerView.layoutManager = LinearLayoutManager(context , RecyclerView.VERTICAL, false)
-            // Click listener for open google map
             mBeachRecyclerAdapter.setOnItemClickListener(object : BeachRecyclerAdapter.OnItemClickListener{
                 override fun onItemClick(v: View, data: BeachCongestionModel, pos: Int) {
                     val selectedBeachName = data.poiNm + "해수욕장"
@@ -127,7 +132,6 @@ class AllBeachesFragment : Fragment() {
                 }
             })
             beachRecyclerView.adapter = mBeachRecyclerAdapter
-            snapHelper.attachToRecyclerView(beachRecyclerView)
         }
     }
 }

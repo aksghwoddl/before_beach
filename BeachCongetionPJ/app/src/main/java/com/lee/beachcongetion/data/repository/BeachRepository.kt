@@ -13,4 +13,10 @@ class BeachRepository {
      * Function for get Kakao Poi from model
      * **/
     suspend fun getKaKaoPoiList(key : String , keyword : String) = KakaoPoiInstance.getInstance().getPOIList(key , keyword)
+
+    /**
+     * Function for convert coordinate WNG84 to Wcong by API
+     * **/
+
+    suspend fun getWcongLanLng(key : String , x : String , y : String) = KakaoPoiInstance.getInstance().getWcongPoint(key , x , y)
 }

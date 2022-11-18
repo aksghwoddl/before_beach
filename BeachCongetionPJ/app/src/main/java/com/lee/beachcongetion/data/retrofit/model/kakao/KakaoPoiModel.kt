@@ -47,3 +47,20 @@ data class SameName(
     val region : MutableList<String> ,
     val selectedRegion : String
 )
+
+data class WcongModel(
+    val meta : WcongMeta ,
+    val documents : MutableList<WcongDocuments>
+)
+
+data class WcongMeta(
+    @SerializedName("total_count")
+    val totalCount : String
+)
+
+data class WcongDocuments(
+    @SerializedName("x")
+    val longitude: String ,
+    @SerializedName("y")
+    val latitude: String
+)
