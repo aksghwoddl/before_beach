@@ -23,8 +23,10 @@
 </p>
 
 #### ▪️ Server
+<p>
 <img src="https://img.shields.io/badge/OpenAPI-40AEF0?style=for-the-badge&logo=&logoColor=white">
-
+<img src="https://img.shields.io/badge/KaKaoAPI-FFCD00?style=for-the-badge&logo=Kakao&logoColor=white">
+</p>
 <br>
 
 ### 🛠 구현 사항
@@ -44,5 +46,5 @@
 
 ### 🎥 시연 화면
 <div align="center">
- <img width="30%" alt="app_main" src="./시연화면/app_running.gif">
+ <img width="30%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/208002575-05f47bc5-f16f-4756-a4c7-34d80e3f851c.gif">
 </div>
