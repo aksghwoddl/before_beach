@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.databinding.ActivityMainBinding
 import com.lee.beachcongetion.ui.fragment.AllBeachesFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 

@@ -1,6 +1,6 @@
-package com.lee.beachcongetion.data.retrofit.model.beach
+package com.lee.data.model.beach
 
-data class BeachCongestionModel(
+data class BeachDTO(
     val etlDt : String = "",
     val seqId : Int = -1,
     val poiNm : String = "",

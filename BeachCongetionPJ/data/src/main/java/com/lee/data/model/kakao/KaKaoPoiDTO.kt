@@ -1,13 +1,13 @@
-package com.lee.beachcongetion.data.retrofit.model.kakao
+package com.lee.data.model.kakao
 
 import com.google.gson.annotations.SerializedName
 
-data class KakaoPoiModel(
-    val documents : MutableList<Documents> ,
-    val meta : Meta
+data class KaKaoPoiDTO(
+    val documents : MutableList<DocumentsDTO>,
+    val meta : MetaDTO
 )
 
-data class Documents(
+data class DocumentsDTO(
     @SerializedName("address_name")
     val addressName : String ,
     @SerializedName("category_group_code")
@@ -31,36 +31,20 @@ data class Documents(
     val latitude : String
 )
 
-data class Meta(
+data class MetaDTO(
     @SerializedName("is_end")
-    val isEnd : Boolean ,
+    val isEnd : Boolean,
     @SerializedName("pageable_count")
-    val pageableCount : Int ,
+    val pageableCount : Int,
     @SerializedName("same_name")
-    val sameName : SameName ,
+    val sameName : SameNameDTO,
     @SerializedName("total_count")
     val totalCount : Int
 )
 
-data class SameName(
+data class SameNameDTO(
     val keyword : String ,
     val region : MutableList<String> ,
-    val selectedRegion : String
+    val selectedRegion : String?
 )
 
-data class WcongModel(
-    val meta : WcongMeta ,
-    val documents : MutableList<WcongDocuments>
-)
-
-data class WcongMeta(
-    @SerializedName("total_count")
-    val totalCount : String
-)
-
-data class WcongDocuments(
-    @SerializedName("x")
-    val longitude: String ,
-    @SerializedName("y")
-    val latitude: String
-)

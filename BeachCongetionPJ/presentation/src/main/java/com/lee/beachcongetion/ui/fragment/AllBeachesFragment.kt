@@ -1,35 +1,33 @@
 package com.lee.beachcongetion.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.lee.beachcongetion.BuildConfig
 import com.lee.beachcongetion.R
-import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
 import com.lee.beachcongetion.databinding.FragmentAllBeachesBinding
 import com.lee.beachcongetion.ui.adapter.BeachRecyclerAdapter
-import com.lee.beachcongetion.ui.factory.BeachViewModelFactory
 import com.lee.beachcongetion.ui.viewmodel.BeachViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.lee.domain.model.beach.Beach
+import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
+@AndroidEntryPoint
 class AllBeachesFragment : Fragment() {
-    private val TAG = "AllBeachesFragment"
     private lateinit var binding : FragmentAllBeachesBinding
 
-    private lateinit var mBeachRecyclerAdapter: BeachRecyclerAdapter
-    private lateinit var mBeachViewModel : BeachViewModel
-    private lateinit var mMap : MapView
+    private lateinit var beachRecyclerAdapter: BeachRecyclerAdapter
+    private val viewModel : BeachViewModel by viewModels()
+    private lateinit var map : MapView
 
     companion object{
         fun newInstance() = AllBeachesFragment()
@@ -41,8 +39,8 @@ class AllBeachesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentAllBeachesBinding.inflate(inflater , container , false)
-        mMap = MapView(context)
-        binding.mapView.addView(mMap)
+        map = MapView(requireActivity())
+        binding.mapView.addView(map)
         return binding.root
     }
 
@@ -54,84 +52,67 @@ class AllBeachesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        mBeachViewModel.getAllBeachCongestion()
+        viewModel.getAllBeachCongestion()
     }
-
-    /**
-     * Function for init viewModel
-     * **/
 
     private fun initBeachViewModel(){
-        mBeachViewModel = ViewModelProvider(this , BeachViewModelFactory())[BeachViewModel::class.java]
-
-        // RecyclerView list observing
-        mBeachViewModel.beachList.observe(viewLifecycleOwner , Observer {
-           mBeachRecyclerAdapter.setList(it)
-           mBeachRecyclerAdapter.notifyItemRangeChanged(0 , mBeachRecyclerAdapter.itemCount)
-        })
-
-        // ProgressBar observing
-        mBeachViewModel.progressVisible.observe(viewLifecycleOwner){
-            if(it){
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                binding.progressBar.visibility = View.GONE
+        with(viewModel){
+            beachList.observe(viewLifecycleOwner) { // 해변 목록
+                beachRecyclerAdapter.setList(it.mBeachList)
+                beachRecyclerAdapter.notifyItemRangeChanged(0 , beachRecyclerAdapter.itemCount)
             }
-        }
 
-        // For toast message when occur error
-        mBeachViewModel.errorMessage.observe(viewLifecycleOwner , Observer {
-            Toast.makeText(context , "서버에서 정상적으로 정보를 가져오지 못했습니다. : $it", Toast.LENGTH_SHORT).show()
-        })
 
-        // For Kakao Poi List
-        mBeachViewModel.poiList.observe(viewLifecycleOwner){
-            mMap.removeAllPOIItems()
-            val poi = it[0]
+            isProgress.observe(viewLifecycleOwner){ // 진행 상태
+                if(it){
+                    binding.progressBar.visibility = View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                }
+            }
 
-            // Convert WNG84 to WCONG because kakao map use WCONG coordinate system
-            // mapPointWithGeoCoord was not work so I convert coordinate by using api
+            toastMessage.observe(viewLifecycleOwner){ // Toast Message
+                Toast.makeText(requireContext() , it , Toast.LENGTH_SHORT).show()
+            }
 
-            CoroutineScope(Dispatchers.IO).launch{
-                val wcongModel = mBeachViewModel.getWcongPoint(resources.getString(R.string.kakao_api_key ), poi.longitude , poi.latitude)?.documents
-                wcongModel?.let {
-                   val longitude = it[0].longitude.toDouble()
-                   val latitude = it[0].latitude.toDouble()
-                    CoroutineScope(Dispatchers.Main).launch{
-                        val marker = MapPOIItem()
-                        with(marker){
-                            itemName = poi.placeName
-                            tag = 0
-                            mapPoint = MapPoint.mapPointWithWCONGCoord(longitude , latitude)
-                            markerType = MapPOIItem.MarkerType.BluePin
-                            selectedMarkerType = MapPOIItem.MarkerType.RedPin
-                        }
-                        mMap.addPOIItem(marker)
-                        mMap.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithWCONGCoord(longitude , latitude)
-                            , 4
-                            ,true)
-                    }
-                }?:let {
-                    mBeachViewModel.errorMessage.postValue("좌표를 변환중 문제가 발생했습니다.")
+            poiList.observe(viewLifecycleOwner){ // 검색된 좌표
+                map.removeAllPOIItems()
+                val poi = it[0]
+                getWcongPoint(BuildConfig.KAKAO_API_KEY , poi.longitude , poi.latitude)  // WNG84좌표를 WCONG 좌표로 변경
+            }
+
+            wcongList.observe(viewLifecycleOwner){ // 변환된 좌표
+                val longitude = it[0].longitude.toDouble()
+                val latitude = it[0].latitude.toDouble()
+                val marker = MapPOIItem()
+                with(marker){
+                    itemName = poiList.value?.get(0)?.placeName
+                    tag = 0
+                    mapPoint = MapPoint.mapPointWithWCONGCoord(longitude , latitude) // 좌표 찍기
+                    markerType = MapPOIItem.MarkerType.BluePin // 선택되지 않은 마커 타입
+                    selectedMarkerType = MapPOIItem.MarkerType.RedPin // 선택된 마커 타입
+                }
+                map.run { // 지도에 마커 찍기
+                    addPOIItem(marker)
+                    setMapCenterPointAndZoomLevel(MapPoint.mapPointWithWCONGCoord(longitude , latitude) // 지도 확대
+                        , 4
+                        ,true)
                 }
             }
         }
     }
 
-    /**
-     * Function that initialize RecyclerView
-     * **/
     private fun initRecyclerView() {
-        mBeachRecyclerAdapter = BeachRecyclerAdapter()
+        beachRecyclerAdapter = BeachRecyclerAdapter()
         with(binding) {
-            beachRecyclerView.layoutManager = LinearLayoutManager(context , RecyclerView.VERTICAL, false)
-            mBeachRecyclerAdapter.setOnItemClickListener(object : BeachRecyclerAdapter.OnItemClickListener{
-                override fun onItemClick(v: View, data: BeachCongestionModel, pos: Int) {
+            beachRecyclerView.layoutManager = LinearLayoutManager(requireContext() , RecyclerView.VERTICAL, false)
+            beachRecyclerAdapter.setOnItemClickListener(object : BeachRecyclerAdapter.OnItemClickListener{
+                override fun onItemClick(v: View, data: Beach , pos: Int) {
                     val selectedBeachName = data.poiNm + "해수욕장"
-                    mBeachViewModel.getKakaoPoiList(resources.getString(R.string.kakao_api_key) , selectedBeachName)
+                    viewModel.getKakaoPoiList(BuildConfig.KAKAO_API_KEY , selectedBeachName)
                 }
             })
-            beachRecyclerView.adapter = mBeachRecyclerAdapter
+            beachRecyclerView.adapter = beachRecyclerAdapter
         }
     }
 }

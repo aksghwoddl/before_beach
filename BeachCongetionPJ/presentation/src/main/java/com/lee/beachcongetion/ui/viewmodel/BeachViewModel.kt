@@ -1,80 +1,84 @@
 package com.lee.beachcongetion.ui.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.lee.beachcongetion.data.repository.BeachRepository
-import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
-import com.lee.beachcongetion.data.retrofit.model.kakao.Documents
-import com.lee.beachcongetion.data.retrofit.model.kakao.KakaoPoiModel
-import com.lee.beachcongetion.data.retrofit.model.kakao.WcongModel
+import androidx.lifecycle.viewModelScope
+import com.lee.data.model.beach.BeachDTO
+import com.lee.domain.model.beach.BeachList
+import com.lee.domain.model.kakao.Documents
+import com.lee.domain.model.kakao.Wcong
+import com.lee.domain.model.kakao.WcongDocuments
+import com.lee.domain.usecase.GetBeachCongestion
+import com.lee.domain.usecase.GetKakaoPoi
+import com.lee.domain.usecase.GetWcong
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
-class BeachViewModel(private val repository: BeachRepository) : ViewModel() {
-    val beachList = MutableLiveData<MutableList<BeachCongestionModel>>()
-    var progressVisible = MutableLiveData<Boolean>()
-    var errorMessage = MutableLiveData<String>()
-    var poiList = MutableLiveData<MutableList<Documents>>()
-    private var job : Job? = null
+@HiltViewModel
+class BeachViewModel @Inject constructor(
+    private val getBeachCongestion: GetBeachCongestion ,
+    private val getKakaoPoi: GetKakaoPoi ,
+    private val getWcong: GetWcong
+) : ViewModel() {
+    private val _beachList = MutableLiveData<BeachList>()
+    val beachList : LiveData<BeachList>
+    get() = _beachList
+
+    private val _isProgress = MutableLiveData<Boolean>()
+    val isProgress : LiveData<Boolean>
+    get() = _isProgress
+    fun setIsProgress(on : Boolean) {
+        _isProgress.value = on
+    }
+
+    private val _toastMessage = MutableLiveData<String>()
+    val toastMessage : LiveData<String>
+    get() = _toastMessage
+    fun setToastMessage(message : String){
+        _toastMessage.value = message
+    }
+
+    private val _poiList = MutableLiveData<ArrayList<Documents>>()
+    val poiList : LiveData<ArrayList<Documents>>
+    get() = _poiList
+
+    private val _wcongList = MutableLiveData<ArrayList<WcongDocuments>>()
+    val wcongList : LiveData<ArrayList<WcongDocuments>>
+    get() = _wcongList
 
     private val exceptionHandler = CoroutineExceptionHandler{
-        _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { onError(it) }
+        _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { _toastMessage.value = it }
     }
 
     /**
-     * Get Beach Congestion List from repository
+     * 해수욕장 혼잡도 불러오기
      * **/
 
     fun getAllBeachCongestion() {
-        progressVisible.postValue(true)
-        CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
-            val response = repository.getBeachCongestion()
-            withContext(Dispatchers.Main){
-                if(response.isSuccessful){
-                    beachList.postValue(response.body()?.getAllBeachList())
-                    progressVisible.postValue(false)
-                } else {
-                    onError(response.message())
-                }
-            }
+        _isProgress.value = true
+        viewModelScope.launch(exceptionHandler) {
+            val beachList = getBeachCongestion.invoke()
+            _beachList.value = beachList
+            _isProgress.value = false
         }
     }
 
     fun getKakaoPoiList(key : String , keyword : String) {
-        progressVisible.postValue(true)
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = repository.getKaKaoPoiList(key, keyword)
-            CoroutineScope(Dispatchers.Main).launch {
-                if(response.isSuccessful){
-                    poiList.value = response.body()?.documents
-                } else {
-                    onError("위치정보를 가져오는중 문제가 발생했습니다.")
-                }
-                progressVisible.value = false
-            }
+        _isProgress.value = true
+        viewModelScope.launch {
+            val kakaoPoi = getKakaoPoi.invoke(key , keyword)
+            _poiList.value = kakaoPoi.documents
+            _isProgress.value = false
         }
     }
 
-    suspend fun getWcongPoint(key : String, x : String, y : String) : WcongModel? {
-        val deferred = CoroutineScope(Dispatchers.IO).async {
-            val response = repository.getWcongLanLng(key , x, y)
-            if(response.isSuccessful){
-                response.body()!!
-            } else {
-                onError("좌표를 변환하는중 오류가 발생했습니다.")
-                null
-            }
+    fun getWcongPoint(key : String, x : String, y : String) {
+        viewModelScope.launch {
+            val wcong = getWcong.invoke(key , x , y)
+            _wcongList.value = wcong.documents
         }
-        return deferred.await()
-    }
-
-    private fun onError(message : String) {
-        errorMessage.postValue(message)
-        progressVisible.postValue(false)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        job?.cancel()
     }
 
 }

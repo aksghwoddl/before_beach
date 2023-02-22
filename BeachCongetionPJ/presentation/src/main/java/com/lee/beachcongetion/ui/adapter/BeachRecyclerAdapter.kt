@@ -10,19 +10,20 @@ import com.lee.beachcongetion.common.CONGEST
 import com.lee.beachcongetion.common.FEW_CONGEST
 import com.lee.beachcongetion.common.NORMAL
 import com.lee.beachcongetion.databinding.BeachItemBinding
-import com.lee.beachcongetion.data.retrofit.model.beach.BeachCongestionModel
+import com.lee.data.model.beach.BeachDTO
+import com.lee.domain.model.beach.Beach
 
 class BeachRecyclerAdapter() : RecyclerView.Adapter<BeachRecyclerAdapter.BeachViewpagerViewHolder>() {
 
-    private var mBeachList = listOf<BeachCongestionModel>()
-    private var mClickListener : OnItemClickListener? = null
+    private var beachList = arrayListOf<Beach>()
+    private var onItemClickListener : OnItemClickListener? = null
 
     /**
      * Interface ItemClick Listener
      * **/
 
     interface OnItemClickListener{
-        fun onItemClick(v:View, data: BeachCongestionModel, pos : Int)
+        fun onItemClick(v:View, data: Beach , pos : Int)
     }
 
     /**
@@ -30,7 +31,7 @@ class BeachRecyclerAdapter() : RecyclerView.Adapter<BeachRecyclerAdapter.BeachVi
      * **/
 
     fun setOnItemClickListener(listener : OnItemClickListener) {
-        mClickListener = listener
+        onItemClickListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BeachViewpagerViewHolder {
@@ -39,18 +40,18 @@ class BeachRecyclerAdapter() : RecyclerView.Adapter<BeachRecyclerAdapter.BeachVi
     }
 
     override fun onBindViewHolder(holder: BeachViewpagerViewHolder, position: Int) {
-        holder.bind(mBeachList[position])
+        holder.bind(beachList[position])
     }
 
 
-    override fun getItemCount() = mBeachList.size
+    override fun getItemCount() = beachList.size
 
-    fun setList(list : List<BeachCongestionModel>){
-        mBeachList = list
+    fun setList(list : ArrayList<Beach>){
+        beachList = list
     }
 
     inner class BeachViewpagerViewHolder(private val binding : BeachItemBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(model: BeachCongestionModel){
+        fun bind(model: Beach){
             with(binding){
                 beachName.text = model.poiNm
                 beachCongestion.text = when(model.congestion){
@@ -85,7 +86,7 @@ class BeachRecyclerAdapter() : RecyclerView.Adapter<BeachRecyclerAdapter.BeachVi
             // init listeners at each viewHolders
             if(position != RecyclerView.NO_POSITION){
                 itemView.setOnClickListener {
-                    mClickListener?.onItemClick(itemView , model , position)
+                    onItemClickListener?.onItemClick(itemView , model , position)
                 }
             }
         }
