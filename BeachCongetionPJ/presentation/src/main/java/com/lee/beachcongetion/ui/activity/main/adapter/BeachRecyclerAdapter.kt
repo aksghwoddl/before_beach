@@ -1,4 +1,4 @@
-package com.lee.beachcongetion.ui.main.adapter
+package com.lee.beachcongetion.ui.activity.main.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -7,10 +7,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Congestion
-import com.lee.beachcongetion.common.ResourceProvider
 import com.lee.beachcongetion.databinding.BeachItemBinding
 import com.lee.domain.model.beach.Beach
-import javax.inject.Inject
 
 class BeachRecyclerAdapter : RecyclerView.Adapter<BeachRecyclerAdapter.BeachViewpagerViewHolder>() {
 

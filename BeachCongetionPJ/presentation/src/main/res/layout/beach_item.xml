@@ -22,8 +22,8 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toTopOf="@id/congestionLayout"
             android:textStyle="bold"
-            android:fontFamily="@font/binggrae"
             android:layout_marginBottom="5dp"
+            android:textColor="@color/black"
             />
 
         <LinearLayout
@@ -43,7 +43,7 @@
                     android:layout_marginEnd="5dp"
                     android:textSize="11sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/binggrae"
+                    android:textColor="@color/black"
                     />
 
                 <TextView
@@ -51,8 +51,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/congestion_value"
-                    android:fontFamily="@font/binggrae"
                     android:textSize="11sp"
+                    android:textStyle="bold"
                     />
         </LinearLayout>
 
