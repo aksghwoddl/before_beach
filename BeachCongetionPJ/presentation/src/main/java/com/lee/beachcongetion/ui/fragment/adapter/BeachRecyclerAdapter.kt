@@ -1,33 +1,37 @@
-package com.lee.beachcongetion.ui.main.adapter
+package com.lee.beachcongetion.ui.fragment.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButtonToggleGroup.OnButtonCheckedListener
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Congestion
-import com.lee.beachcongetion.common.ResourceProvider
 import com.lee.beachcongetion.databinding.BeachItemBinding
 import com.lee.domain.model.beach.Beach
-import javax.inject.Inject
 
 class BeachRecyclerAdapter : RecyclerView.Adapter<BeachRecyclerAdapter.BeachViewpagerViewHolder>() {
 
     private var beachList = arrayListOf<Beach>()
     private var onItemClickListener : OnItemClickListener? = null
+    private var onButtonClickListener : OnItemClickListener? = null
 
     interface OnItemClickListener{
-        fun onItemClick(v:View, data: Beach , pos : Int)
+        fun onClick(v:View, data: Beach , pos : Int)
     }
 
     fun setOnItemClickListener(listener : OnItemClickListener) {
         onItemClickListener = listener
     }
 
+    fun setOnButtonClickListener(listener: OnItemClickListener) {
+        onButtonClickListener = listener
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BeachViewpagerViewHolder {
         val binding = BeachItemBinding.inflate(LayoutInflater.from(parent.context) , parent , false)
-        return BeachViewpagerViewHolder(binding)
+        return BeachViewpagerViewHolder(binding , onItemClickListener!! , onButtonClickListener!!)
     }
 
     override fun onBindViewHolder(holder: BeachViewpagerViewHolder, position: Int) {
@@ -41,7 +45,11 @@ class BeachRecyclerAdapter : RecyclerView.Adapter<BeachRecyclerAdapter.BeachView
         beachList = list
     }
 
-    inner class BeachViewpagerViewHolder(private val binding : BeachItemBinding) : RecyclerView.ViewHolder(binding.root){
+    class BeachViewpagerViewHolder(
+        private val binding : BeachItemBinding ,
+        private val onItemClickListener: OnItemClickListener ,
+        private val onButtonClickListener : OnItemClickListener
+        ) : RecyclerView.ViewHolder(binding.root){
         fun bind(model: Beach){
             with(binding){
                 beachName.text = model.poiNm
@@ -65,14 +73,19 @@ class BeachRecyclerAdapter : RecyclerView.Adapter<BeachRecyclerAdapter.BeachView
                     }
                 }
             }
+            addListeners(model)
+        }
 
+        private fun addListeners(data : Beach) {
             val position = adapterPosition
             if(position != RecyclerView.NO_POSITION){
                 itemView.setOnClickListener {
-                    onItemClickListener?.onItemClick(itemView , model , position)
+                    onItemClickListener.onClick(itemView , data  , position)
+                }
+                binding.findRoadButton.setOnClickListener {
+                    onButtonClickListener.onClick(it , data , position)
                 }
             }
         }
-
     }
 }

@@ -12,7 +12,7 @@ import com.gun0912.tedpermission.normal.TedPermission
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.databinding.ActivitySplashBinding
-import com.lee.beachcongetion.ui.main.MainActivity
+import com.lee.beachcongetion.ui.activity.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
