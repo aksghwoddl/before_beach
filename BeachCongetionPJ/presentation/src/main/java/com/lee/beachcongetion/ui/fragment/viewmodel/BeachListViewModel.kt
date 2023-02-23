@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.ResourceProvider
 import com.lee.domain.model.beach.BeachList
+import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.KaKaoPoi
 import com.lee.domain.usecase.GetBeachCongestion
 import com.lee.domain.usecase.GetKakaoPoi
@@ -33,6 +34,9 @@ class BeachListViewModel @Inject constructor(
     val poiList : LiveData<KaKaoPoi>
     get() = _poiList
 
+    private val _destination = MutableLiveData<Documents>()
+    val destination : LiveData<Documents>
+    get() = _destination
 
     private val _isProgress = MutableLiveData<Boolean>()
     val isProgress : LiveData<Boolean>
@@ -67,13 +71,17 @@ class BeachListViewModel @Inject constructor(
     }
 
     /**
-     * 선택된 해변의 POI 정보 불러오기
+     * 선택된 해변의 POI 정보 불러오기 (isNavi - 길찾기 버튼 클릭 여뷰)
      * **/
-    fun getKakaoPoiList(key : String , keyword : String) {
+    fun getKakaoPoiList(key : String , keyword : String , isNavi : Boolean) {
         _isProgress.value = true
         viewModelScope.launch {
             val kakaoPoi = getKakaoPoi.invoke(key , keyword)
-            _poiList.value = kakaoPoi
+            if(isNavi){ // 길찾기로 인해 호출 되었을떼
+                _destination.value = kakaoPoi.documents[0]
+            } else { // 길찾기로 인해 호출되지 않았을때
+                _poiList.value = kakaoPoi
+            }
             _isProgress.value = false
         }
     }

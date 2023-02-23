@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -48,6 +47,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
         binding.mainActivity = this@MainActivity
         initBroadcastReceiver()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        getCurrentLocation() // 앱이 시작되면 현재위치로 지도를 이동시킨다.
     }
 
     override fun onDestroy() {
@@ -135,13 +139,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 beachListFragment.show(supportFragmentManager , TAG)
             }
 
-            currentLocationButton.setOnClickListener { // 현재위ㅊ 버튼
-                val location = getCurrentLocation()
-                location?.let { // 현재위치를 정상적으로 받아왔을때
-                    viewModel.setCurrentLocation(it)
-                }?:let { // 현재위치를 받아오지 못했을때
-                    viewModel.setToastMessage(getString(R.string.fail_find_current_location))
-                }
+            currentLocationButton.setOnClickListener { // 현재위치 버튼
+                getCurrentLocation()
             }
         }
     }
@@ -157,10 +156,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * 현재 위치를 가져오는 함수
      * **/
     @SuppressLint("MissingPermission") // 앱 시작시 이미 권한 체크를 끝냄
-    private fun getCurrentLocation() : Location? {
+    private fun getCurrentLocation() {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
         val gpsProvider = LocationManager.GPS_PROVIDER
-        return locationManager?.getLastKnownLocation(gpsProvider)
+        val location = locationManager?.getLastKnownLocation(gpsProvider)
+        location?.let { // 현재위치를 정상적으로 받아왔을때
+            viewModel.setCurrentLocation(it)
+        }?:let { // 현재위치를 받아오지 못했을때
+            viewModel.setToastMessage(getString(R.string.fail_find_current_location))
+        }
     }
 
     /**
