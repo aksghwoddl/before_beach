@@ -18,8 +18,8 @@ data class Documents(
     val placeName : String ,
     val placeURL : String ,
     val roadAddressName : String ,
-    val longitude : String ,
-    val latitude : String
+    var longitude : String ,
+    var latitude : String
 ) : Serializable
 
 data class Meta(

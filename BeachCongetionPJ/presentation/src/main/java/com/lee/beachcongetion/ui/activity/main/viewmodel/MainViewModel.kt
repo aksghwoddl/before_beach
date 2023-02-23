@@ -1,11 +1,14 @@
 package com.lee.beachcongetion.ui.activity.main.viewmodel
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.domain.model.beach.BeachList
+import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.Documents
+import com.lee.domain.model.kakao.Wcong
 import com.lee.domain.model.kakao.WcongDocuments
 import com.lee.domain.usecase.GetBeachCongestion
 import com.lee.domain.usecase.GetKakaoPoi
@@ -49,15 +52,43 @@ class MainViewModel @Inject constructor(
     val wcongList : LiveData<ArrayList<WcongDocuments>>
     get() = _wcongList
 
+    private val _currentLocation = MutableLiveData<Location>()
+    val currentLocation : LiveData<Location>
+    get() = _currentLocation
+    fun setCurrentLocation(location : Location){
+        _currentLocation.value = location
+    }
+
+    private val _currentLatLng = MutableLiveData<CurrentLatLng>()
+    val currentLatLng : LiveData<CurrentLatLng>
+    get() = _currentLatLng
+    fun setCurrentLatLng(latLng: CurrentLatLng) {
+        _currentLatLng.value = latLng
+    }
+
     private val exceptionHandler = CoroutineExceptionHandler{
         _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { _toastMessage.value = it }
     }
 
-    fun getWcongPoint(key : String, x : String, y : String) {
+
+
+    /**
+     * 선택된 장소의 POI 정보 불러오기
+     * **/
+    fun getKakaoPoiList(key : String , keyword : String) {
+        _isProgress.value = true
         viewModelScope.launch {
-            val wcong = getWcong.invoke(key , x , y)
-            _wcongList.value = wcong.documents
+            val kakaoPoi = getKakaoPoi.invoke(key , keyword)
+            _poiList.value = kakaoPoi.documents
+            _isProgress.value = false
         }
+    }
+
+    suspend fun getWcongPoint(key : String, x : String, y : String) : Wcong {
+        val deferred = viewModelScope.async {
+             getWcong.invoke(key , x , y)
+        }
+        return deferred.await()
     }
 
 }

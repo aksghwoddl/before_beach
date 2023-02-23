@@ -1,9 +1,12 @@
 package com.lee.beachcongetion.ui.activity.main
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,8 +17,9 @@ import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.common.base.BaseActivity
 import com.lee.beachcongetion.databinding.ActivityMainBinding
-import com.lee.beachcongetion.ui.fragment.BeachListBottomSheetDialogFragment
 import com.lee.beachcongetion.ui.activity.main.viewmodel.MainViewModel
+import com.lee.beachcongetion.ui.fragment.BeachListBottomSheetDialogFragment
+import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.KaKaoPoi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +29,15 @@ import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
+
 const val TAG = "MainActivity"
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val viewModel : MainViewModel by viewModels()
     private lateinit var mainActivityReceiver: MainActivityReceiver
     private lateinit var map : MapView
+    private lateinit var savedCurrentLatLng : CurrentLatLng
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         map = MapView(this@MainActivity)
@@ -61,30 +68,59 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 android.widget.Toast.makeText(this@MainActivity , it , android.widget.Toast.LENGTH_SHORT).show()
             }
 
-            poiList.observe(this@MainActivity){ // 검색된 좌표
+            poiList.observe(this@MainActivity){ poiList -> // 검색된 좌표
                 map.removeAllPOIItems()
-                val poi = it[0]
-                getWcongPoint(BuildConfig.KAKAO_API_KEY , poi.longitude , poi.latitude)  // WNG84좌표를 WCONG 좌표로 변경
+                val makers = arrayListOf<MapPOIItem>()
+                lifecycleScope.launch(Dispatchers.Default) {
+                    poiList.forEach {
+                        val wcong = getWcongPoint(BuildConfig.KAKAO_API_KEY , it.longitude , it.latitude)  // WNG84좌표를 WCONG 좌표로 변경
+                        it.longitude = wcong.documents[0].longitude
+                        it.latitude = wcong.documents[0].latitude
+
+                        val marker = MapPOIItem()
+                        val searchMapPoint = MapPoint.mapPointWithWCONGCoord(it.longitude.toDouble() , it.latitude.toDouble())
+                        marker.run{
+                            itemName = it.placeName
+                            mapPoint = searchMapPoint
+                            markerType = MapPOIItem.MarkerType.BluePin // 선택되지 않은 마커 타입
+                            selectedMarkerType = MapPOIItem.MarkerType.RedPin // 선택된 마커 타입
+                        }
+                        makers.add(marker)
+                    }
+                    setMarker(2 , makers)
+                }
             }
 
-            wcongList.observe(this@MainActivity){ // 변환된 좌표
-                val longitude = it[0].longitude.toDouble()
-                val latitude = it[0].latitude.toDouble()
+            currentLocation.observe(this@MainActivity){ // 현재위치
+                lifecycleScope.launch{
+                    val wcong = getWcongPoint(BuildConfig.KAKAO_API_KEY , it.longitude.toString() , it.latitude.toString())
+                    val searchPoint = wcong.documents[0]
+                    if(!::savedCurrentLatLng.isInitialized){
+                        savedCurrentLatLng = CurrentLatLng.getInstance()
+                    }
+                    savedCurrentLatLng.run {
+                        setLongitude(it.longitude)
+                        setLatitude(it.latitude)
+                        setWconLongitude(searchPoint.longitude.toDouble())
+                        setWcongLatitude(searchPoint.latitude.toDouble())
+                    }
+                    setCurrentLatLng(savedCurrentLatLng)
+                }
+            }
+
+            currentLatLng.observe(this@MainActivity){ // 현재 위치의 좌표객체
                 val marker = MapPOIItem()
-                with(marker){
-                    itemName = poiList.value?.get(0)?.placeName
-                    tag = 0
-                    mapPoint = MapPoint.mapPointWithWCONGCoord(longitude , latitude) // 좌표 찍기
-                    markerType = MapPOIItem.MarkerType.BluePin // 선택되지 않은 마커 타입
-                    selectedMarkerType = MapPOIItem.MarkerType.RedPin // 선택된 마커 타입
+                val searchMapPoint = MapPoint.mapPointWithWCONGCoord(it.getWcongLongitude() , it.getWcongLatitude())
+                marker.run{
+                    itemName = getString(R.string.current_location)
+                    mapPoint = searchMapPoint
+                    markerType = MapPOIItem.MarkerType.CustomImage // 선택되지 않은 마커 타입
+                    customImageResourceId = R.mipmap.ic_launcher_foreground // 커스텀 마커 이미지
+                    isCustomImageAutoscale = false // Android 시스템에 따른 자동 scale 막기
+                    isShowCalloutBalloonOnTouch = false // 커스텀 마커는 말풍선 보이기 안함
+                    setCustomImageAnchor(0.5f , 0.5f)
                 }
-                map.run { // 지도에 마커 찍기
-                    addPOIItem(marker)
-                    setMapCenterPointAndZoomLevel(
-                        MapPoint.mapPointWithWCONGCoord(longitude , latitude) // 지도 확대
-                        , 4
-                        ,true)
-                }
+                setMarker(1 , marker , searchMapPoint)
             }
         }
     }
@@ -94,9 +130,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     override fun addListeners() {
         with(binding){
-            showListLayout.setOnClickListener {
+            showListLayout.setOnClickListener { // 목록 보기 버튼
                 val beachListFragment = BeachListBottomSheetDialogFragment.newInstance()
                 beachListFragment.show(supportFragmentManager , TAG)
+            }
+
+            currentLocationButton.setOnClickListener { // 현재위ㅊ 버튼
+                val location = getCurrentLocation()
+                location?.let { // 현재위치를 정상적으로 받아왔을때
+                    viewModel.setCurrentLocation(it)
+                }?:let { // 현재위치를 받아오지 못했을때
+                    viewModel.setToastMessage(getString(R.string.fail_find_current_location))
+                }
             }
         }
     }
@@ -108,6 +153,47 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         registerReceiver(mainActivityReceiver , intentFilter)
     }
 
+    /**
+     * 현재 위치를 가져오는 함수
+     * **/
+    @SuppressLint("MissingPermission") // 앱 시작시 이미 권한 체크를 끝냄
+    private fun getCurrentLocation() : Location? {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        val gpsProvider = LocationManager.GPS_PROVIDER
+        return locationManager?.getLastKnownLocation(gpsProvider)
+    }
+
+    /**
+     * 지도에 marker를 setting하는 함수 (한가지의 마커만 사용할때)
+     * **/
+    private fun setMarker(zoom : Int , marker : MapPOIItem , mapPoint: MapPoint){
+        map.run { // 지도에 마커 찍기
+            addPOIItem(marker)
+            setMapCenterPointAndZoomLevel(
+                mapPoint
+                , zoom
+                ,true)
+        }
+    }
+
+    /**
+     * 지도에 marker를 setting하는 함수 (여러 마커를 한번에 표시할때)
+     * **/
+    private fun setMarker(zoom : Int , makers : ArrayList<MapPOIItem>){
+        map.run { // 지도에 마커 찍기
+            makers.forEach {
+                addPOIItem(it)
+            }
+            setMapCenterPointAndZoomLevel(
+                makers[0].mapPoint
+                , zoom
+                ,true)
+        }
+    }
+
+    /**
+     * MainActivity에서 사용할 BroadcastReceiver
+     * **/
     private class MainActivityReceiver(private val viewModel : MainViewModel) : BroadcastReceiver() {
         override fun onReceive(context : Context?, intent : Intent?) {
             when(intent?.action){

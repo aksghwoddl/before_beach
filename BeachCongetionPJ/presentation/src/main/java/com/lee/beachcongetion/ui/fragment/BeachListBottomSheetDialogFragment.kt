@@ -41,7 +41,6 @@ class BeachListBottomSheetDialogFragment : BaseBottomSheetDialogFragment<Fragmen
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume()")
         viewModel.getAllBeachCongestion()
     }
 
