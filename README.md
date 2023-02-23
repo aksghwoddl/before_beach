@@ -1,10 +1,6 @@
 # 비포비치 🌊 
 
-<div align="center">
- <img width="30%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/200157256-b64cba2c-dd60-4dc8-814f-7347e2ab9a75.png">
-</div>
-
-<br>
+ <img width="10%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/220795518-a5196e30-8782-407d-bf65-b4685c28b7ef.png">
 
 ## 🤔 프로젝트 설명
 
