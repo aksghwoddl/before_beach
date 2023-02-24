@@ -1,4 +1,4 @@
-package com.lee.beachcongetion.ui.fragment.adapter
+package com.lee.beachcongetion.ui.fragment.list.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater

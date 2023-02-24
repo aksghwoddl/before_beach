@@ -9,6 +9,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.lee.beachcongetion.BuildConfig
@@ -17,7 +18,8 @@ import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.common.base.BaseActivity
 import com.lee.beachcongetion.databinding.ActivityMainBinding
 import com.lee.beachcongetion.ui.activity.main.viewmodel.MainViewModel
-import com.lee.beachcongetion.ui.fragment.BeachListBottomSheetDialogFragment
+import com.lee.beachcongetion.ui.fragment.list.BeachListBottomSheetDialogFragment
+import com.lee.beachcongetion.ui.fragment.search.SearchBottomSheetDialogFragment
 import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.KaKaoPoi
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,6 +54,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override fun onStart() {
         super.onStart()
         getCurrentLocation() // 앱이 시작되면 현재위치로 지도를 이동시킨다.
+        viewModel.getAllBeachCongestion()
     }
 
     override fun onDestroy() {
@@ -65,7 +68,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override fun observeData() {
         with(viewModel){
             isProgress.observe(this@MainActivity){ // 진행 상태
-
+                if(it){
+                    binding.progressBar.visibility = View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                }
             }
 
             toastMessage.observe(this@MainActivity){ // Toast Message
@@ -134,8 +141,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     override fun addListeners() {
         with(binding){
+            searchTextView.setOnClickListener {
+                val searchFragment = SearchBottomSheetDialogFragment.newInstance(viewModel.beachList.value!!)
+                searchFragment.show(supportFragmentManager , TAG)
+            }
+
             showListLayout.setOnClickListener { // 목록 보기 버튼
-                val beachListFragment = BeachListBottomSheetDialogFragment.newInstance()
+                val beachListFragment = BeachListBottomSheetDialogFragment.newInstance(viewModel.beachList.value!!)
                 beachListFragment.show(supportFragmentManager , TAG)
             }
 
@@ -159,11 +171,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private fun getCurrentLocation() {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
         val gpsProvider = LocationManager.GPS_PROVIDER
-        val location = locationManager?.getLastKnownLocation(gpsProvider)
-        location?.let { // 현재위치를 정상적으로 받아왔을때
-            viewModel.setCurrentLocation(it)
-        }?:let { // 현재위치를 받아오지 못했을때
-            viewModel.setToastMessage(getString(R.string.fail_find_current_location))
+        val networkGpsProvider = LocationManager.NETWORK_PROVIDER
+        val gpsLocation = locationManager?.getLastKnownLocation(gpsProvider)
+        val networkLocation = locationManager?.getLastKnownLocation(networkGpsProvider)
+        with(viewModel){
+            gpsLocation?.let { // GPS를 통해 현재위치를 정상적으로 받아왔을때
+                setCurrentLocation(it)
+            }?:let { // 현재위치를 받아오지 못했을때
+                networkLocation?.let { // 네트워크 Provider를 통해 위치 받음
+                   setCurrentLocation(it)
+                }?: setToastMessage(getString(R.string.fail_find_current_location)) // 둘 다 실패할 경우 toast message 띄움
+            }
         }
     }
 

@@ -70,7 +70,17 @@ class MainViewModel @Inject constructor(
         _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { _toastMessage.value = it }
     }
 
-
+    /**
+     * 해수욕장 혼잡도 불러오기
+     * **/
+    fun getAllBeachCongestion() {
+        _isProgress.value = true
+        viewModelScope.launch(exceptionHandler) {
+            val beachList = getBeachCongestion.invoke()
+            _beachList.value = beachList
+            _isProgress.value = false
+        }
+    }
 
     /**
      * 선택된 장소의 POI 정보 불러오기
