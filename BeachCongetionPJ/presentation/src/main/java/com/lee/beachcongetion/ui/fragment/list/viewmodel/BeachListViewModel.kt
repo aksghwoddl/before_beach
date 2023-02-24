@@ -1,4 +1,4 @@
-package com.lee.beachcongetion.ui.fragment.viewmodel
+package com.lee.beachcongetion.ui.fragment.list.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -29,6 +29,9 @@ class BeachListViewModel @Inject constructor(
     private val _beachList = MutableLiveData<BeachList>()
     val beachList : LiveData<BeachList>
     get() = _beachList
+    fun setBeachList(list : BeachList){
+        _beachList.value = list
+    }
 
     private val _poiList = MutableLiveData<KaKaoPoi>()
     val poiList : LiveData<KaKaoPoi>
@@ -59,23 +62,11 @@ class BeachListViewModel @Inject constructor(
     }
 
     /**
-     * 해수욕장 혼잡도 불러오기
-     * **/
-    fun getAllBeachCongestion() {
-        _isProgress.value = true
-        viewModelScope.launch(exceptionHandler) {
-            val beachList = getBeachCongestion.invoke()
-            _beachList.value = beachList
-            _isProgress.value = false
-        }
-    }
-
-    /**
      * 선택된 해변의 POI 정보 불러오기 (isNavi - 길찾기 버튼 클릭 여뷰)
      * **/
     fun getKakaoPoiList(key : String , keyword : String , isNavi : Boolean) {
         _isProgress.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val kakaoPoi = getKakaoPoi.invoke(key , keyword)
             if(isNavi){ // 길찾기로 인해 호출 되었을떼
                 _destination.value = kakaoPoi.documents[0]

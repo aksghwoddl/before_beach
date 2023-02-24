@@ -1,10 +1,9 @@
-package com.lee.beachcongetion.ui.fragment
+package com.lee.beachcongetion.ui.fragment.list
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,9 +14,10 @@ import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.common.base.BaseBottomSheetDialogFragment
 import com.lee.beachcongetion.databinding.FragmentBeachListBinding
-import com.lee.beachcongetion.ui.fragment.adapter.BeachRecyclerAdapter
-import com.lee.beachcongetion.ui.fragment.viewmodel.BeachListViewModel
+import com.lee.beachcongetion.ui.fragment.list.adapter.BeachRecyclerAdapter
+import com.lee.beachcongetion.ui.fragment.list.viewmodel.BeachListViewModel
 import com.lee.domain.model.beach.Beach
+import com.lee.domain.model.beach.BeachList
 import com.lee.domain.model.kakao.CurrentLatLng
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,13 +29,13 @@ private const val MARKET_URI = "market://details?id=net.daum.android.map"
  * 해수욕장 목록을 보여주는 BottomSheetDialogFragment
  * **/
 @AndroidEntryPoint
-class BeachListBottomSheetDialogFragment : BaseBottomSheetDialogFragment<FragmentBeachListBinding>(R.layout.fragment_beach_list) {
+class BeachListBottomSheetDialogFragment(private val beachList: BeachList) : BaseBottomSheetDialogFragment<FragmentBeachListBinding>(R.layout.fragment_beach_list) {
     private lateinit var beachRecyclerAdapter : BeachRecyclerAdapter
     private lateinit var currentLatLng: CurrentLatLng
     private val viewModel : BeachListViewModel by viewModels()
 
     companion object{
-        fun newInstance() = BeachListBottomSheetDialogFragment()
+        fun newInstance(beachList: BeachList) = BeachListBottomSheetDialogFragment(beachList)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,11 +43,7 @@ class BeachListBottomSheetDialogFragment : BaseBottomSheetDialogFragment<Fragmen
         binding.listBottomSheetDialog = this@BeachListBottomSheetDialogFragment
         currentLatLng = CurrentLatLng.getInstance()
         initRecyclerView()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getAllBeachCongestion()
+        viewModel.setBeachList(beachList)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -89,14 +85,6 @@ class BeachListBottomSheetDialogFragment : BaseBottomSheetDialogFragment<Fragmen
                     }else{ // 앱이 설치되어 있다면
                         startActivity(this)
                     }
-                }
-            }
-
-            isProgress.observe(viewLifecycleOwner){ // 진행 상태
-                if(it){
-                    binding.progressBar.visibility = View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
                 }
             }
 
