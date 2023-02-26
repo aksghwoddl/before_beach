@@ -41,13 +41,6 @@ class BeachListViewModel @Inject constructor(
     val destination : LiveData<Documents>
     get() = _destination
 
-    private val _isProgress = MutableLiveData<Boolean>()
-    val isProgress : LiveData<Boolean>
-        get() = _isProgress
-    fun setIsProgress(on : Boolean) {
-        _isProgress.value = on
-    }
-
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage : LiveData<String>
         get() = _toastMessage
@@ -62,10 +55,9 @@ class BeachListViewModel @Inject constructor(
     }
 
     /**
-     * 선택된 해변의 POI 정보 불러오기 (isNavi - 길찾기 버튼 클릭 여뷰)
+     * 선택된 해변의 POI 정보 불러오기 (isNavi - 길찾기 버튼 클릭 여부)
      * **/
     fun getKakaoPoiList(key : String , keyword : String , isNavi : Boolean) {
-        _isProgress.value = true
         viewModelScope.launch(exceptionHandler) {
             val kakaoPoi = getKakaoPoi.invoke(key , keyword)
             if(isNavi){ // 길찾기로 인해 호출 되었을떼
@@ -73,7 +65,6 @@ class BeachListViewModel @Inject constructor(
             } else { // 길찾기로 인해 호출되지 않았을때
                 _poiList.value = kakaoPoi
             }
-            _isProgress.value = false
         }
     }
 
