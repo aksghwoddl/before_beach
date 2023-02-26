@@ -3,8 +3,10 @@ package com.lee.beachcongetion.common
 import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
+import android.os.IBinder
 import android.util.DisplayMetrics
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -22,6 +24,7 @@ class Utils {
     companion object{
         const val ACTION_MARK_BEACH_PIN = "com.lee.beachcongetion.common.Utils.ACTION_MARK_BEACH_PIN"
         const val EXTRA_SELECTED_POI = "selected_poi"
+        const val KAKAO_MAP_MARKET_URI = "market://details?id=net.daum.android.map"
         /**
          *  Kakao Map HashKey 가져오는 함수
          * **/
@@ -79,6 +82,16 @@ class Utils {
             val displayMetrics = DisplayMetrics()
             activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
             return displayMetrics.heightPixels
+        }
+
+        /**
+         * 키패드 숨기는 함수
+         * **/
+        fun hideSoftInputKeyboard(context : Context , token : IBinder?) {
+            token?.let {
+                val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(token  , 0)
+            }
         }
     }
 }

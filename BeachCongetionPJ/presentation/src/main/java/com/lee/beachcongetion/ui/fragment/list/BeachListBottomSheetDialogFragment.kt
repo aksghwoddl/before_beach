@@ -23,15 +23,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 const val TAG = "BeachListFragment"
-private const val MARKET_URI = "market://details?id=net.daum.android.map"
-
 /**
  * 해수욕장 목록을 보여주는 BottomSheetDialogFragment
  * **/
 @AndroidEntryPoint
 class BeachListBottomSheetDialogFragment(private val beachList: BeachList) : BaseBottomSheetDialogFragment<FragmentBeachListBinding>(R.layout.fragment_beach_list) {
     private lateinit var beachRecyclerAdapter : BeachRecyclerAdapter
-    private lateinit var currentLatLng: CurrentLatLng
     private val viewModel : BeachListViewModel by viewModels()
 
     companion object{
@@ -41,7 +38,6 @@ class BeachListBottomSheetDialogFragment(private val beachList: BeachList) : Bas
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.listBottomSheetDialog = this@BeachListBottomSheetDialogFragment
-        currentLatLng = CurrentLatLng.getInstance()
         initRecyclerView()
         viewModel.setBeachList(beachList)
     }
@@ -75,13 +71,14 @@ class BeachListBottomSheetDialogFragment(private val beachList: BeachList) : Bas
             }
 
             destination.observe(viewLifecycleOwner){ // 목적지
+                val currentLatLng = CurrentLatLng.getInstance()
                 val url = "kakaomap://route?sp=${currentLatLng.getLatitude()},${currentLatLng.getLongitude()}&ep=${it.latitude},${it.longitude}&by=CAR"
                 with(Intent(Intent.ACTION_VIEW, Uri.parse(url))){
                     addCategory(Intent.CATEGORY_BROWSABLE)
                     val packageManager = requireActivity().packageManager
                     val list = packageManager.queryIntentActivities(this , PackageManager.MATCH_DEFAULT_ONLY)
                     if (list.isEmpty()){ // 앱이 설치되어 있지 않다면
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(MARKET_URI)))
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Utils.KAKAO_MAP_MARKET_URI)))
                     }else{ // 앱이 설치되어 있다면
                         startActivity(this)
                     }

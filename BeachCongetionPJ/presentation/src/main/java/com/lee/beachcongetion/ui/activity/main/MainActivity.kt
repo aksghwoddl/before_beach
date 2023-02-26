@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -37,7 +38,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val viewModel : MainViewModel by viewModels()
     private lateinit var mainActivityReceiver: MainActivityReceiver
     private lateinit var map : MapView
-    private lateinit var savedCurrentLatLng : CurrentLatLng
+    private lateinit var currentLocationMarker : MapPOIItem // 현재위치 마커
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,12 +50,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
         binding.mainActivity = this@MainActivity
         initBroadcastReceiver()
+        viewModel.getAllBeachCongestion()
     }
 
     override fun onStart() {
         super.onStart()
-        getCurrentLocation() // 앱이 시작되면 현재위치로 지도를 이동시킨다.
-        viewModel.getAllBeachCongestion()
+        if(!::currentLocationMarker.isInitialized){ // 현재위치가 아직 설정되지 않은 최초의 상태일때만 화면이 올라올때 현재위치를 불러온다.
+            getCurrentLocation() // 앱이 시작되면 현재위치로 지도를 이동시킨다.
+        }
     }
 
     override fun onDestroy() {
@@ -103,35 +106,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
 
             currentLocation.observe(this@MainActivity){ // 현재위치
-                lifecycleScope.launch{
-                    val wcong = getWcongPoint(BuildConfig.KAKAO_API_KEY , it.longitude.toString() , it.latitude.toString())
-                    val searchPoint = wcong.documents[0]
-                    if(!::savedCurrentLatLng.isInitialized){
-                        savedCurrentLatLng = CurrentLatLng.getInstance()
-                    }
-                    savedCurrentLatLng.run {
-                        setLongitude(it.longitude)
-                        setLatitude(it.latitude)
-                        setWconLongitude(searchPoint.longitude.toDouble())
-                        setWcongLatitude(searchPoint.latitude.toDouble())
-                    }
-                    setCurrentLatLng(savedCurrentLatLng)
-                }
+                changeCurrentLatLng(it)
             }
 
             currentLatLng.observe(this@MainActivity){ // 현재 위치의 좌표객체
-                val marker = MapPOIItem()
-                val searchMapPoint = MapPoint.mapPointWithWCONGCoord(it.getWcongLongitude() , it.getWcongLatitude())
-                marker.run{
-                    itemName = getString(R.string.current_location)
-                    mapPoint = searchMapPoint
-                    markerType = MapPOIItem.MarkerType.CustomImage // 선택되지 않은 마커 타입
-                    customImageResourceId = R.mipmap.ic_launcher_foreground // 커스텀 마커 이미지
-                    isCustomImageAutoscale = false // Android 시스템에 따른 자동 scale 막기
-                    isShowCalloutBalloonOnTouch = false // 커스텀 마커는 말풍선 보이기 안함
-                    setCustomImageAnchor(0.5f , 0.5f)
-                }
-                setMarker(1 , marker , searchMapPoint)
+                setCurrentLocationMarker(it)
             }
         }
     }
@@ -141,13 +120,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     override fun addListeners() {
         with(binding){
-            searchTextView.setOnClickListener {
+            searchTextView.setOnClickListener { // 검색하기
                 val searchFragment = SearchBottomSheetDialogFragment.newInstance(viewModel.beachList.value!!)
                 searchFragment.show(supportFragmentManager , TAG)
             }
 
             showListLayout.setOnClickListener { // 목록 보기 버튼
-                val beachListFragment = BeachListBottomSheetDialogFragment.newInstance(viewModel.beachList.value!!)
+                val beachListFragment = BeachListBottomSheetDialogFragment .newInstance(viewModel.beachList.value!!)
                 beachListFragment.show(supportFragmentManager , TAG)
             }
 
@@ -210,6 +189,46 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 makers[0].mapPoint
                 , zoom
                 ,true)
+        }
+    }
+
+    /**
+     * 현재위치 마커를 setting하는 함수
+     * **/
+    private fun setCurrentLocationMarker(currentLocation : CurrentLatLng) {
+        val searchMapPoint = MapPoint.mapPointWithWCONGCoord(currentLocation.getWcongLongitude() , currentLocation.getWcongLatitude())
+        if(!::currentLocationMarker.isInitialized){
+            currentLocationMarker = MapPOIItem()
+            currentLocationMarker.run{
+                itemName = getString(R.string.current_location)
+                markerType = MapPOIItem.MarkerType.CustomImage // 선택되지 않은 마커 타입
+                customImageResourceId = R.mipmap.ic_launcher_foreground // 커스텀 마커 이미지
+                isCustomImageAutoscale = false // Android 시스템에 따른 자동 scale 막기
+                isShowCalloutBalloonOnTouch = false // 커스텀 마커는 말풍선 보이기 안함
+                setCustomImageAnchor(0.5f , 0.5f)
+            }
+        }
+
+        map.removePOIItem(currentLocationMarker) // 이전 현재위치 마커는 삭제
+        currentLocationMarker.mapPoint = searchMapPoint
+        setMarker(0 , currentLocationMarker , searchMapPoint)
+    }
+
+    /**
+     * 현재 위치의 좌표값 객체를 변경하는 함수
+     * **/
+    private fun changeCurrentLatLng(currentLocation: Location) {
+        lifecycleScope.launch{
+            val wcong = viewModel.getWcongPoint(BuildConfig.KAKAO_API_KEY , currentLocation.longitude.toString() , currentLocation.latitude.toString())
+            val searchPoint = wcong.documents[0]
+            val currentLatLng = CurrentLatLng.getInstance()
+            currentLatLng.run {
+                setLongitude(currentLocation.longitude)
+                setLatitude(currentLocation.latitude)
+                setWconLongitude(searchPoint.longitude.toDouble())
+                setWcongLatitude(searchPoint.latitude.toDouble())
+            }
+            viewModel.setCurrentLatLng(currentLatLng)
         }
     }
 
