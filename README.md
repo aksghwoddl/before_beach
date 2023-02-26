@@ -1,4 +1,4 @@
-# 비포비치 🌊 
+# 비비 🌊 
 
  <img width="10%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/220795518-a5196e30-8782-407d-bf65-b4685c28b7ef.png">
 
