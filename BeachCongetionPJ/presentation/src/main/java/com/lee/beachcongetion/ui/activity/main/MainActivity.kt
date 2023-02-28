@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -32,13 +33,17 @@ import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
 
-const val TAG = "MainActivity"
+private const val TAG = "MainActivity"
+private const val MIN_TIME = 1000L // GPS Listener update하는 최소시간 (1초 마다)
+private const val MIN_DISTANCE = 100.0f // GPS Listener update하는 최소거리 (100m이상 차이나야 업데이트 수행)
+
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val viewModel : MainViewModel by viewModels()
     private lateinit var mainActivityReceiver: MainActivityReceiver
     private lateinit var map : MapView
     private lateinit var currentLocationMarker : MapPOIItem // 현재위치 마커
+    private var gpsListener : GpsListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +65,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateCurrentLocation()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gpsListener?.let { // 화면이 내려갈때는 GPS Listener update 멈춤
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationManager.removeUpdates(it)
+        }
+    }
+
     override fun onDestroy() {
         unregisterReceiver(mainActivityReceiver)
+        gpsListener = null
         super.onDestroy()
     }
 
@@ -101,7 +120,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         }
                         makers.add(marker)
                     }
-                    setMarker(2 , makers)
+                    setMarkerAndZoom(2 , makers)
                 }
             }
 
@@ -148,39 +167,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     @SuppressLint("MissingPermission") // 앱 시작시 이미 권한 체크를 끝냄
     private fun getCurrentLocation() {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-        val gpsProvider = LocationManager.GPS_PROVIDER
-        val networkGpsProvider = LocationManager.NETWORK_PROVIDER
-        val gpsLocation = locationManager?.getLastKnownLocation(gpsProvider)
-        val networkLocation = locationManager?.getLastKnownLocation(networkGpsProvider)
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
         with(viewModel){
             gpsLocation?.let { // GPS를 통해 현재위치를 정상적으로 받아왔을때
-                setCurrentLocation(it)
+                setCurrentLocation(it , true)
             }?:let { // 현재위치를 받아오지 못했을때
                 networkLocation?.let { // 네트워크 Provider를 통해 위치 받음
-                   setCurrentLocation(it)
+                   setCurrentLocation(it , true)
                 }?: setToastMessage(getString(R.string.fail_find_current_location)) // 둘 다 실패할 경우 toast message 띄움
             }
         }
     }
 
     /**
-     * 지도에 marker를 setting하는 함수 (한가지의 마커만 사용할때)
+     * 지도에 marker를 setting하는 함수
      * **/
-    private fun setMarker(zoom : Int , marker : MapPOIItem , mapPoint: MapPoint){
-        map.run { // 지도에 마커 찍기
-            addPOIItem(marker)
-            setMapCenterPointAndZoomLevel(
-                mapPoint
-                , zoom
-                ,true)
-        }
-    }
-
-    /**
-     * 지도에 marker를 setting하는 함수 (여러 마커를 한번에 표시할때)
-     * **/
-    private fun setMarker(zoom : Int , makers : ArrayList<MapPOIItem>){
+    private fun setMarkerAndZoom(zoom : Int , makers : ArrayList<MapPOIItem>){
         map.run { // 지도에 마커 찍기
             makers.forEach {
                 addPOIItem(it)
@@ -193,7 +197,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     /**
-     * 현재위치 마커를 setting하는 함수
+     * 현재위치 마커를 setting하는 함수 (현재 위치 버튼 클릭여부에 따라 지도 확대하거나 하지 않는다.)
      * **/
     private fun setCurrentLocationMarker(currentLocation : CurrentLatLng) {
         val searchMapPoint = MapPoint.mapPointWithWCONGCoord(currentLocation.getWcongLongitude() , currentLocation.getWcongLatitude())
@@ -209,9 +213,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         }
 
-        map.removePOIItem(currentLocationMarker) // 이전 현재위치 마커는 삭제
         currentLocationMarker.mapPoint = searchMapPoint
-        setMarker(0 , currentLocationMarker , searchMapPoint)
+        map.run { // 지도에 마커 찍기
+            removePOIItem(currentLocationMarker) // 이전 현재위치 마커는 삭제
+            addPOIItem(currentLocationMarker)
+            if(viewModel.requestCurrentButton.value!!){ // 현재 위치 버튼을 통해 호출될 경우에는 지도를 확대시킨다.
+                setMapCenterPointAndZoomLevel(
+                    searchMapPoint
+                    , 0
+                    ,true)
+            }
+        }
     }
 
     /**
@@ -229,6 +241,28 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 setWcongLatitude(searchPoint.latitude.toDouble())
             }
             viewModel.setCurrentLatLng(currentLatLng)
+        }
+    }
+    
+    /**
+     * 실시간으로 현재위치를 업데이트 하는 함수
+     * **/
+    @SuppressLint("MissingPermission") // 이미 권한체크를 끝냄
+    private fun updateCurrentLocation() {
+        if(gpsListener == null){
+            gpsListener = GpsListener(viewModel)
+        }
+        gpsListener?.let { listener ->
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER).let {
+                if(it){
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER , MIN_TIME , MIN_DISTANCE , listener)
+                } else {
+                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER).let {
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER , MIN_TIME , MIN_DISTANCE , listener)
+                    }
+                }
+            }
         }
     }
 
@@ -250,6 +284,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     }
                 }
             }
+        }
+    }
+
+    private class GpsListener(private val viewModel: MainViewModel) : LocationListener {
+        override fun onLocationChanged(location : Location) {
+            viewModel.setCurrentLocation(location , false)
+            Log.d(TAG, "onLocationChanged: $location")
         }
     }
 }

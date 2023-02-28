@@ -55,8 +55,14 @@ class MainViewModel @Inject constructor(
     private val _currentLocation = MutableLiveData<Location>()
     val currentLocation : LiveData<Location>
     get() = _currentLocation
-    fun setCurrentLocation(location : Location){
+    /**
+     * 현재 Location 객체를 담는 LiveData를 setting하는 함수
+     * 1. location = setting할 위치 객체
+     * 2. requestFromCurrentButton = 현재 위치 버튼으로부터 호출되었는지 확인하는 파라미터
+     * **/
+    fun setCurrentLocation(location : Location , requestFromCurrentButton : Boolean){
         _currentLocation.value = location
+        _requestCurrentButton.value = requestFromCurrentButton
     }
 
     private val _currentLatLng = MutableLiveData<CurrentLatLng>()
@@ -65,6 +71,10 @@ class MainViewModel @Inject constructor(
     fun setCurrentLatLng(latLng: CurrentLatLng) {
         _currentLatLng.value = latLng
     }
+
+    private val _requestCurrentButton = MutableLiveData<Boolean>()
+    val requestCurrentButton : LiveData<Boolean>
+    get() = _requestCurrentButton
 
     private val exceptionHandler = CoroutineExceptionHandler{
         _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { _toastMessage.value = it }
