@@ -93,4 +93,7 @@ dependencies {
 
     //TedPermission
     implementation 'io.github.ParkSangGwon:tedpermission-normal:3.3.0'
+
+    // Preferences Data Store
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 }

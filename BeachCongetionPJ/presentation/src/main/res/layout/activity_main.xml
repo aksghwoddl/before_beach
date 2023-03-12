@@ -200,12 +200,13 @@
                         android:id="@+id/settingMenuTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/setting_menu"
+                        android:text="@string/setting_navi"
                         android:focusable="true"
                         android:clickable="true"
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:textColor="@color/black"
                         android:padding="20dp"
+                        android:onClick="@{() -> mainActivity.startSettingNaviActivity()}"
                         />
                     <TextView
                         android:id="@+id/checkVersionTextView"

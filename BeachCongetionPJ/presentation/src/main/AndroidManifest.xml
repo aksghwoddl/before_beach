@@ -37,7 +37,9 @@
         </activity>
 
         <activity android:name=".ui.activity.version.CheckVersionActivity">
+        </activity>
 
+        <activity android:name=".ui.activity.navi.SettingNaviActivity">
         </activity>
 
         <meta-data
