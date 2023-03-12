@@ -217,6 +217,7 @@
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:textColor="@color/black"
                         android:padding="20dp"
+                        android:onClick="@{() -> mainActivity.startCheckVersionActivity()}"
                         />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

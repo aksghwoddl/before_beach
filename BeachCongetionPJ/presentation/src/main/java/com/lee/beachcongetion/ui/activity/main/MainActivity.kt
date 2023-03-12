@@ -21,6 +21,7 @@ import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.common.base.BaseActivity
 import com.lee.beachcongetion.databinding.ActivityMainBinding
 import com.lee.beachcongetion.ui.activity.main.viewmodel.MainViewModel
+import com.lee.beachcongetion.ui.activity.version.CheckVersionActivity
 import com.lee.beachcongetion.ui.fragment.list.BeachListBottomSheetDialogFragment
 import com.lee.beachcongetion.ui.fragment.search.SearchBottomSheetDialogFragment
 import com.lee.domain.model.kakao.CurrentLatLng
@@ -159,6 +160,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     drawerLayout.openDrawer(Gravity.LEFT)
                 }
             }
+        }
+    }
+
+    /**
+     * 현재버전 액티비티 실행하는 함수
+     * **/
+    fun startCheckVersionActivity() {
+        with(Intent(this@MainActivity , CheckVersionActivity::class.java)){
+            startActivity(this)
         }
     }
 
