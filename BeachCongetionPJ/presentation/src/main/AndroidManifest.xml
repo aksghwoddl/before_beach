@@ -35,6 +35,11 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <activity android:name=".ui.activity.version.CheckVersionActivity">
+
+        </activity>
+
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="8829ac31b31fc956bda0e60fb844daeb"

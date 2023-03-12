@@ -28,4 +28,8 @@
     <!-- Search -->
     <string name="search_hint">해수욕장 이름을 입력해주세요.</string>
     <string name="input_keyword">검색어를 입력해주세요.</string>
+
+    <!-- Check Version -->
+    <string name="current_version">현재버전 %s</string>
+
 </resources>
