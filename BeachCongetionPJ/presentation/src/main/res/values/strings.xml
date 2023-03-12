@@ -22,6 +22,8 @@
     <string name="search_beach">해수욕장 검색</string>
     <string name="show_list">목록보기</string>
     <string name="fail_find_current_location">현재 위치를 찾는데 실패했습니다.</string>
+    <string name="setting_menu">환경설정</string>
+    <string name="version_menu">버전확인</string>
 
     <!-- Search -->
     <string name="search_hint">해수욕장 이름을 입력해주세요.</string>

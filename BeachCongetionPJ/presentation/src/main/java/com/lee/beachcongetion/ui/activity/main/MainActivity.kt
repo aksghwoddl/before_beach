@@ -11,6 +11,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -151,6 +152,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
             currentLocationButton.setOnClickListener { // 현재위치 버튼
                 getCurrentLocation()
+            }
+
+            menuButton.setOnClickListener { // 메뉴 버튼
+                if(!drawerLayout.isOpen){
+                    drawerLayout.openDrawer(Gravity.LEFT)
+                }
             }
         }
     }
