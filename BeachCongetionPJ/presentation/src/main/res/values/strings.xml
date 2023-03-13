@@ -22,7 +22,7 @@
     <string name="search_beach">해수욕장 검색</string>
     <string name="show_list">목록보기</string>
     <string name="fail_find_current_location">현재 위치를 찾는데 실패했습니다.</string>
-    <string name="setting_menu">환경설정</string>
+    <string name="setting_navi">기본 네비게이션</string>
     <string name="version_menu">버전확인</string>
 
     <!-- Search -->
@@ -31,5 +31,11 @@
 
     <!-- Check Version -->
     <string name="current_version">현재버전 %s</string>
+
+    <!-- Setting Navi -->
+    <string name="setting_navi_title">네비게이션 설정</string>
+    <string name="kakao_map">카카오맵</string>
+    <string name="t_map">티맵</string>
+    <string name="selected_navi">기본 네비게이션 : %s</string>
 
 </resources>

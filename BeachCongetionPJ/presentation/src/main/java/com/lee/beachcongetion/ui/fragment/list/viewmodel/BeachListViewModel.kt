@@ -1,5 +1,6 @@
 package com.lee.beachcongetion.ui.fragment.list.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,20 +11,24 @@ import com.lee.domain.model.beach.BeachList
 import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.KaKaoPoi
 import com.lee.domain.usecase.GetBeachCongestion
+import com.lee.domain.usecase.GetCurrentNavi
 import com.lee.domain.usecase.GetKakaoPoi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 /**
  * 해수욕장 목록 ViewModel class
  * **/
+private const val TAG = "BeachListViewModel"
 @HiltViewModel
 class BeachListViewModel @Inject constructor(
-    private val getBeachCongestion: GetBeachCongestion ,
     private val getKakaoPoi: GetKakaoPoi ,
+    private val getCurrentNavi: GetCurrentNavi ,
     private val resourceProvider: ResourceProvider
 ) : ViewModel() {
     private val _beachList = MutableLiveData<BeachList>()
@@ -40,6 +45,11 @@ class BeachListViewModel @Inject constructor(
     private val _destination = MutableLiveData<Documents>()
     val destination : LiveData<Documents>
     get() = _destination
+
+    private val _currentNavi = MutableLiveData<String>()
+    val currentNavi : LiveData<String>
+        get() = _currentNavi
+
 
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage : LiveData<String>
@@ -61,9 +71,23 @@ class BeachListViewModel @Inject constructor(
         viewModelScope.launch(exceptionHandler) {
             val kakaoPoi = getKakaoPoi.invoke(key , keyword)
             if(isNavi){ // 길찾기로 인해 호출 되었을떼
+                Log.d(TAG, "getKakaoPoiList: ${destination.value}")
                 _destination.value = kakaoPoi.documents[0]
             } else { // 길찾기로 인해 호출되지 않았을때
                 _poiList.value = kakaoPoi
+            }
+        }
+    }
+
+    /**
+     * 현재 설정된 기본 네비게이션을 불러오는 함수
+     * **/
+    fun getSelectedNavi() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                getCurrentNavi.invoke()
+            }.collect{
+                _currentNavi.value = it
             }
         }
     }

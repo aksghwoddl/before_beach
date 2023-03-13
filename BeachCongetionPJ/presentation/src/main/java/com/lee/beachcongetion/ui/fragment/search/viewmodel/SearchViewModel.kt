@@ -10,16 +10,20 @@ import com.lee.domain.model.beach.Beach
 import com.lee.domain.model.beach.BeachList
 import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.KaKaoPoi
+import com.lee.domain.usecase.GetCurrentNavi
 import com.lee.domain.usecase.GetKakaoPoi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val getKakaoPoi: GetKakaoPoi ,
+    private val getCurrentNavi: GetCurrentNavi ,
     private val resourceProvider: ResourceProvider
 ) : ViewModel() {
     private val _beachList = MutableLiveData<BeachList>()
@@ -51,6 +55,10 @@ class SearchViewModel @Inject constructor(
         _toastMessage.value = message
     }
 
+    private val _currentNavi = MutableLiveData<String>()
+    val currentNavi : LiveData<String>
+    get() = _currentNavi
+
     private val exceptionHandler = CoroutineExceptionHandler { _ , exception ->
         when(exception) {
             is SocketTimeoutException -> { setToastMessage(resourceProvider.getString(R.string.socket_timeout_exception))}
@@ -67,6 +75,19 @@ class SearchViewModel @Inject constructor(
                 _destination.value = kakaoPoi.documents[0]
             } else { // 길찾기로 인해 호출되지 않았을때
                 _poiList.value = kakaoPoi
+            }
+        }
+    }
+
+    /**
+     * 현재 설정된 기본 네비게이션을 불러오는 함수
+     * **/
+    fun getSelectedNavi() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                getCurrentNavi.invoke()
+            }.collect{
+                _currentNavi.value = it
             }
         }
     }

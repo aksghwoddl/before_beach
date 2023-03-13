@@ -2,6 +2,8 @@ package com.lee.beachcongetion.di
 
 import com.lee.data.datasource.beach.BeachDataSource
 import com.lee.data.datasource.beach.BeachDataSourceImpl
+import com.lee.data.datasource.preference.PreferenceDataSource
+import com.lee.data.datasource.preference.PreferenceDataSourceImpl
 import com.lee.data.datasource.kakao.KakaoDataSource
 import com.lee.data.datasource.kakao.KakaoDataSourceImpl
 import com.lee.data.repository.BeachRepositoryImpl
@@ -35,4 +37,11 @@ abstract class BindModule {
     @Binds
     @Singleton
     abstract fun bindKakaoDataSource(kakaoDataSourceImpl: KakaoDataSourceImpl) : KakaoDataSource
+
+    /**
+     * DataSource를 bind하는 함수
+     * **/
+    @Binds
+    @Singleton
+    abstract fun bindDataStoreDataSource(dataStoreDataSourceImpl: PreferenceDataSourceImpl) : PreferenceDataSource
 }

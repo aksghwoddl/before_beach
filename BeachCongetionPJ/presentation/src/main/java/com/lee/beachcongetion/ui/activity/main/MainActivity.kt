@@ -21,6 +21,7 @@ import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.common.base.BaseActivity
 import com.lee.beachcongetion.databinding.ActivityMainBinding
 import com.lee.beachcongetion.ui.activity.main.viewmodel.MainViewModel
+import com.lee.beachcongetion.ui.activity.navi.SettingNaviActivity
 import com.lee.beachcongetion.ui.activity.version.CheckVersionActivity
 import com.lee.beachcongetion.ui.fragment.list.BeachListBottomSheetDialogFragment
 import com.lee.beachcongetion.ui.fragment.search.SearchBottomSheetDialogFragment
@@ -91,14 +92,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     override fun observeData() {
         with(viewModel){
-            isProgress.observe(this@MainActivity){ // 진행 상태
-                if(it){
-                    binding.progressBar.visibility = View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
-                }
-            }
-
             toastMessage.observe(this@MainActivity){ // Toast Message
                 android.widget.Toast.makeText(this@MainActivity , it , android.widget.Toast.LENGTH_SHORT).show()
             }
@@ -168,6 +161,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     fun startCheckVersionActivity() {
         with(Intent(this@MainActivity , CheckVersionActivity::class.java)){
+            startActivity(this)
+        }
+    }
+
+    fun startSettingNaviActivity() {
+        with(Intent(this@MainActivity , SettingNaviActivity::class.java)){
             startActivity(this)
         }
     }
