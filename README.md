@@ -20,6 +20,7 @@
  <img src="https://img.shields.io/badge/DataBinding-0F9D58?style=for-the-badge&logo=&logoColor=white">
  <img src="https://img.shields.io/badge/Hilt-0F9D58?style=for-the-badge&logo=&logoColor=white">
  <img src="https://img.shields.io/badge/TedPermission-0F9D58?style=for-the-badge&logo=&logoColor=white">
+ <img src="https://img.shields.io/badge/DataStore-0F9D58?style=for-the-badge&logo=&logoColor=white">
 </p>
 
 #### ▪️ Server
@@ -39,14 +40,22 @@
 ##### 3️⃣ 카카오맵 API를 통해 리스트 선택시 지도 이동 및 pin표시 기능 
 ###### 카카오맵 API의 키워드 검색 및 좌표계 변환하는 기능을 통해 리스트 선택시 해당 해변으로 지도가 이동하고 해당 좌표에 pin을 표시하는 기능을 구현 하였습니다.
 
-##### 4️⃣ 카카오맵 Scheme을 통한 길찾기 기능
-###### 카카오맵으로 Intent를 전달하여 목적지로 길안내를 할 수 있도록 하는 기능을 구현 하였습니다.
+##### 4️⃣ URL Scheme을 통한 길찾기 기능
+###### URL Scheme을 통해 목적지 길안내 기능을 구현 하였습니다.
 
 ##### 5️⃣ 해수욕장 검색 기능
 ###### 검색을 통해 간편하게 해수욕장의 혼잡도 및 길안내를 받을 수 있도록 구현 하였습니다.
 
 ##### 6️⃣ 현재위치 표시
 ###### GPSProvider 와 Network Provider를 통한 현재 위치를 수신하여 지도에 표시하도록 구현 하였습니다.
+
+##### 7️⃣ 현재 버전 체크
+###### 현재 앱의 버전을 체크하는 화면을 구현 하였습니다.
+
+##### 8️⃣ 기본 네비게이션 설정 기능
+###### DataStore를 통해 사용자가 설정한 기본 네비게이션앱을 저장하여 해당 앱을 기반으로 길안내 기능을 제공하도록 구현 하였습니다.
+
+
 
 <br>
 
@@ -64,4 +73,5 @@
 ##### 5️⃣ Repository를 사용하여 Data를 관리 하였습니다.
 ##### 6️⃣ Clean Architecture를 위해 Module화를 통해 각 Layer를 분리해주었습니다.
 ##### 7️⃣ TedPermission 라이브러리를 통한 권한 체크를 했습니다.
+##### 8️⃣ DataStore를 통해 사용자의 간단한 설정 정보를 저장하도록 했습니다.
 
