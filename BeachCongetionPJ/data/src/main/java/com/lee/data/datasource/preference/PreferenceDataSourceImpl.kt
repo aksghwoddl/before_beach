@@ -1,12 +1,12 @@
-package com.lee.data.datasource.datastore
+package com.lee.data.datasource.preference
 
 import com.lee.data.datastore.DataStoreModule
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DataStoreDataSourceImpl @Inject constructor(
+class PreferenceDataSourceImpl @Inject constructor(
     private val dataStoreModule: DataStoreModule
-) : DataStoreDataSource {
+) : PreferenceDataSource {
     override suspend fun getCurrentNavi(): Flow<String> {
         return dataStoreModule.currentNavi
     }

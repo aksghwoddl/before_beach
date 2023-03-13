@@ -92,14 +92,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * **/
     override fun observeData() {
         with(viewModel){
-            isProgress.observe(this@MainActivity){ // 진행 상태
-                if(it){
-                    binding.progressBar.visibility = View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
-                }
-            }
-
             toastMessage.observe(this@MainActivity){ // Toast Message
                 android.widget.Toast.makeText(this@MainActivity , it , android.widget.Toast.LENGTH_SHORT).show()
             }

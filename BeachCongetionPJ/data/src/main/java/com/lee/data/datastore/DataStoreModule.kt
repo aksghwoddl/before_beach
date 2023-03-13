@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lee.data.common.DataUtils
+import com.lee.data.common.Navi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -29,7 +30,7 @@ class DataStoreModule @Inject constructor(
                 is IOException -> emit(emptyPreferences())
             }
         }.map { preferences ->
-            preferences[currentNaviKey] ?: ""
+            preferences[currentNaviKey] ?: Navi.KAKAO_MAP.name
         }
 
     suspend fun setCurrentNavi(navi : String){

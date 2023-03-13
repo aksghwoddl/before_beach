@@ -25,6 +25,7 @@ class Utils {
         const val ACTION_MARK_BEACH_PIN = "com.lee.beachcongetion.common.Utils.ACTION_MARK_BEACH_PIN"
         const val EXTRA_SELECTED_POI = "selected_poi"
         const val KAKAO_MAP_MARKET_URI = "market://details?id=net.daum.android.map"
+        const val TMAP_MARKET_URI = "market://details?id=com.skt.tmap.ku"
         /**
          *  Kakao Map HashKey 가져오는 함수
          * **/
@@ -94,11 +95,4 @@ class Utils {
             }
         }
     }
-}
-
-/**
- * 네비게이션 선택값을 모아놓은 enum class
- * **/
-enum class Navi {
-    KAKAO_MAP
 }

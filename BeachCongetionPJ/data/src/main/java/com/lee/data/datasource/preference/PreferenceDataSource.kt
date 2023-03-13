@@ -1,8 +1,8 @@
-package com.lee.data.datasource.datastore
+package com.lee.data.datasource.preference
 
 import kotlinx.coroutines.flow.Flow
 
-interface DataStoreDataSource {
+interface PreferenceDataSource {
     suspend fun getCurrentNavi() : Flow<String>
     suspend fun setCurrentNavi(navi : String)
 }

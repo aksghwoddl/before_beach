@@ -197,7 +197,7 @@
                     android:orientation="vertical"
                     >
                     <TextView
-                        android:id="@+id/settingMenuTextView"
+                        android:id="@+id/settingNaviTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/setting_navi"

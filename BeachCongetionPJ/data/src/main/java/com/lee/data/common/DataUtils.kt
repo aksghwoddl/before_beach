@@ -11,3 +11,11 @@ class DataUtils {
         const val SETTINGS = "settings"
     }
 }
+
+/**
+ * 네비게이션 선택값을 모아놓은 enum class
+ * **/
+enum class Navi {
+    KAKAO_MAP ,
+    TMAP
+}

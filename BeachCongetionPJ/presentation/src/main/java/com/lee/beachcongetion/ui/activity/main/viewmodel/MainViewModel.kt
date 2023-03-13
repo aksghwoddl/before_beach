@@ -11,28 +11,21 @@ import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.Wcong
 import com.lee.domain.model.kakao.WcongDocuments
 import com.lee.domain.usecase.GetBeachCongestion
-import com.lee.domain.usecase.GetKakaoPoi
 import com.lee.domain.usecase.GetWcong
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getBeachCongestion: GetBeachCongestion ,
-    private val getKakaoPoi: GetKakaoPoi ,
     private val getWcong: GetWcong
 ) : ViewModel() {
     private val _beachList = MutableLiveData<BeachList>()
     val beachList : LiveData<BeachList>
     get() = _beachList
-
-    private val _isProgress = MutableLiveData<Boolean>()
-    val isProgress : LiveData<Boolean>
-    get() = _isProgress
-    fun setIsProgress(on : Boolean) {
-        _isProgress.value = on
-    }
 
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage : LiveData<String>
@@ -84,26 +77,15 @@ class MainViewModel @Inject constructor(
      * 해수욕장 혼잡도 불러오기
      * **/
     fun getAllBeachCongestion() {
-        _isProgress.value = true
         viewModelScope.launch(exceptionHandler) {
             val beachList = getBeachCongestion.invoke()
             _beachList.value = beachList
-            _isProgress.value = false
         }
     }
 
     /**
-     * 선택된 장소의 POI 정보 불러오기
+     * 전달받은 좌표를 Wcong 좌표계로 변환해주는 함수
      * **/
-    fun getKakaoPoiList(key : String , keyword : String) {
-        _isProgress.value = true
-        viewModelScope.launch {
-            val kakaoPoi = getKakaoPoi.invoke(key , keyword)
-            _poiList.value = kakaoPoi.documents
-            _isProgress.value = false
-        }
-    }
-
     suspend fun getWcongPoint(key : String, x : String, y : String) : Wcong {
         val deferred = viewModelScope.async {
              getWcong.invoke(key , x , y)

@@ -1,7 +1,7 @@
 package com.lee.data.repository
 
 import com.lee.data.datasource.beach.BeachDataSource
-import com.lee.data.datasource.datastore.DataStoreDataSource
+import com.lee.data.datasource.preference.PreferenceDataSource
 import com.lee.data.datasource.kakao.KakaoDataSource
 import com.lee.domain.model.beach.BeachList
 import com.lee.domain.model.kakao.KaKaoPoi
@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class BeachRepositoryImpl @Inject constructor(
-    private val beachDataSource: BeachDataSource ,
-    private val kakaoDataSource: KakaoDataSource ,
-    private val dataStoreDataSource: DataStoreDataSource ,
+    private val beachDataSource: BeachDataSource,
+    private val kakaoDataSource: KakaoDataSource,
+    private val dataStoreDataSource: PreferenceDataSource,
 ) : BeachRepository {
     /**
      * 해수욕장 혼잡도 가져오기

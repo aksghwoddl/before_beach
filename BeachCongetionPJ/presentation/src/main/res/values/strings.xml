@@ -35,5 +35,7 @@
     <!-- Setting Navi -->
     <string name="setting_navi_title">네비게이션 설정</string>
     <string name="kakao_map">카카오맵</string>
+    <string name="t_map">티맵</string>
+    <string name="selected_navi">기본 네비게이션 : %s</string>
 
 </resources>
