@@ -3,7 +3,6 @@ package com.lee.domain.repository
 import com.lee.domain.model.beach.BeachList
 import com.lee.domain.model.kakao.KaKaoPoi
 import com.lee.domain.model.kakao.Wcong
-import com.lee.domain.model.kakao.WcongDocuments
 import kotlinx.coroutines.flow.Flow
 
 interface BeachRepository {
@@ -31,4 +30,14 @@ interface BeachRepository {
      * DataStore의 기본 Navi 설정하는 함수
      * **/
     suspend fun setCurrentNavi(navi : String)
+
+    /**
+     * 위치 권한이 체크 되어있는지 여부를 가져오는 함수
+     * **/
+    suspend fun getIsPermission() : Flow<Boolean>
+
+    /**
+     * 위치권한이 허용되어 있는지 여부에 대해 설정하는 함수
+     * **/
+    suspend fun setIsPermission(permission: Boolean)
 }

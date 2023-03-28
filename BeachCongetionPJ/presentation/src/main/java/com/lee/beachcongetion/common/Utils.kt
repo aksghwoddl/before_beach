@@ -1,5 +1,6 @@
 package com.lee.beachcongetion.common
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
@@ -9,6 +10,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 
 /**
  * 혼잡도 관리를 위한 Enum class
@@ -92,6 +95,22 @@ class Utils {
             token?.let {
                 val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(token  , 0)
+            }
+        }
+
+        /**
+         * 앱 권한 확인하는 함수
+         * **/
+         fun checkPermission(listener : PermissionListener) {
+            val tedPermission = TedPermission.create()
+            tedPermission.run {
+                setPermissionListener(listener)
+                setDeniedMessage("위치정보에 대한 권한이 필요합니다.")
+                setPermissions(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+                check()
             }
         }
     }
