@@ -8,6 +8,7 @@ class DataUtils {
         const val AUTHORIZATION = "Authorization"
 
         const val CURRENT_NAVI = "current_navi"
+        const val IS_PERMISSION = "is_permission"
         const val SETTINGS = "settings"
     }
 }

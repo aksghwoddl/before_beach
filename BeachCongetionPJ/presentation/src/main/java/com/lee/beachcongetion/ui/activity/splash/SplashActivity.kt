@@ -1,19 +1,19 @@
-package com.lee.beachcongetion.ui
+package com.lee.beachcongetion.ui.activity.splash
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.gun0912.tedpermission.normal.TedPermission
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.databinding.ActivitySplashBinding
 import com.lee.beachcongetion.ui.activity.main.MainActivity
+import com.lee.beachcongetion.ui.activity.splash.viewmodel.SplashViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -21,6 +21,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
     private lateinit var binding : ActivitySplashBinding
+    private val viewModel : SplashViewModel by viewModels()
+    private var permissionListener : PermissionListener? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater).also {
@@ -29,12 +32,20 @@ class SplashActivity : AppCompatActivity() {
         checkNetwork()
     }
 
+    override fun onDestroy() {
+        permissionListener = null
+        super.onDestroy()
+    }
+
     /**
      * 네트워크 연결상태 확인 하는 함수
      * **/
     private fun checkNetwork() {
         if(Utils.checkNetworkConnection(this@SplashActivity)){
-            checkPermission()
+            if(permissionListener == null){
+                permissionListener = PermissionListener()
+            }
+            Utils.checkPermission(permissionListener!!)
         } else {
             AlertDialog.Builder(this@SplashActivity)
                 .setTitle(getString(R.string.network))
@@ -43,19 +54,6 @@ class SplashActivity : AppCompatActivity() {
                     checkNetwork()
                     dialog.dismiss()
                 }.create().show()
-        }
-    }
-
-    /**
-     * 앱 권한 확인하는 함수
-     * **/
-    private fun checkPermission() {
-        val tedPermission = TedPermission.create()
-        tedPermission.run {
-            setPermissionListener(PermissionListener())
-            setDeniedMessage("위치정보에 대한 권한이 필요합니다.")
-            setPermissions(ACCESS_FINE_LOCATION , ACCESS_COARSE_LOCATION)
-            check()
         }
     }
 
@@ -75,10 +73,13 @@ class SplashActivity : AppCompatActivity() {
         }
 
         override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+            lifecycleScope.launch(Dispatchers.IO){ // 권한 Preference 세팅하기
+                viewModel.setPermission(false)
+            }
             AlertDialog.Builder(this@SplashActivity)
                 .setMessage("위치정보에 대한 권한이 필요합니다.")
                 .setPositiveButton(getString(R.string.confirm)){ dialog , _ ->
-                    checkPermission()
+                    Utils.checkPermission(this)
                     dialog.dismiss()
                 }
                 .create().show()

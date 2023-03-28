@@ -49,4 +49,18 @@ class BeachRepositoryImpl @Inject constructor(
     override suspend fun setCurrentNavi(navi: String) {
         dataStoreDataSource.setCurrentNavi(navi)
     }
+
+    /**
+     * 위치 권한이 체크 되어있는지 여부를 가져오는 함수
+     * **/
+    override suspend fun getIsPermission(): Flow<Boolean> {
+        return dataStoreDataSource.getIsPermission()
+    }
+
+    /**
+     * 위치권한이 허용되어 있는지 여부에 대해 설정하는 함수
+     * **/
+    override suspend fun setIsPermission(permission: Boolean) {
+        dataStoreDataSource.setIsPermission(permission)
+    }
 }

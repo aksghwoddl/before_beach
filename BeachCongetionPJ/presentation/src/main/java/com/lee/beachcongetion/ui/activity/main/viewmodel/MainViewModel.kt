@@ -1,6 +1,7 @@
 package com.lee.beachcongetion.ui.activity.main.viewmodel
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,17 +12,25 @@ import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.Wcong
 import com.lee.domain.model.kakao.WcongDocuments
 import com.lee.domain.usecase.GetBeachCongestion
+import com.lee.domain.usecase.GetIsPermission
 import com.lee.domain.usecase.GetWcong
+import com.lee.domain.usecase.SetIsPermission
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "MainViewModel"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getBeachCongestion: GetBeachCongestion ,
-    private val getWcong: GetWcong
+    private val getWcong: GetWcong ,
+    private val getIsPermission: GetIsPermission ,
+    private val setIsPermission: SetIsPermission
 ) : ViewModel() {
     private val _beachList = MutableLiveData<BeachList>()
     val beachList : LiveData<BeachList>
@@ -69,6 +78,10 @@ class MainViewModel @Inject constructor(
     val requestCurrentButton : LiveData<Boolean>
     get() = _requestCurrentButton
 
+    private val _isPermission = MutableLiveData(true)
+    val isPermission : LiveData<Boolean>
+    get() = _isPermission
+
     private val exceptionHandler = CoroutineExceptionHandler{
         _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { _toastMessage.value = it }
     }
@@ -93,4 +106,17 @@ class MainViewModel @Inject constructor(
         return deferred.await()
     }
 
+    /**
+     * 권한에 대한 Preference를 setting하는 함수
+     * **/
+    suspend fun setPermission(permission : Boolean){
+        setIsPermission.invoke(permission)
+    }
+
+    fun checkIsPermission(){
+        Log.d(TAG, "checkIsPermission()")
+        viewModelScope.launch {
+            _isPermission.value = getIsPermission.invoke().first()
+        }
+    }
 }
