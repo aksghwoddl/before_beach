@@ -12,6 +12,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -20,19 +22,22 @@ import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Utils
 import com.lee.beachcongetion.common.base.BaseActivity
 import com.lee.beachcongetion.databinding.ActivityMainBinding
+import com.lee.beachcongetion.databinding.CustomBalloonLayoutBinding
 import com.lee.beachcongetion.ui.activity.main.viewmodel.MainViewModel
 import com.lee.beachcongetion.ui.activity.navi.SettingNaviActivity
 import com.lee.beachcongetion.ui.activity.version.CheckVersionActivity
 import com.lee.beachcongetion.ui.fragment.list.BeachListBottomSheetDialogFragment
 import com.lee.beachcongetion.ui.fragment.search.SearchBottomSheetDialogFragment
+import com.lee.data.common.Navi
 import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.KaKaoPoi
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import net.daum.mf.map.api.CalloutBalloonAdapter
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
+import java.net.SocketTimeoutException
 
 
 private const val TAG = "MainActivity"
@@ -48,15 +53,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var map : MapView? = null
     private var gpsListener : GpsListener? = null
     private var permissionListener : PermissionListener? = null
+    private var poiItemListener : PoiItemListener? = null
+
+    private val exceptionHandler = CoroutineExceptionHandler { _ , exception ->
+        when(exception){
+            is SocketTimeoutException -> {
+                viewModel.setToastMessage(getString(R.string.socket_timeout_exception))
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        map = MapView(this@MainActivity)
-        lifecycleScope.launch(Dispatchers.Default){
-            binding.mapView.addView(map)
-        }
-        binding.mainActivity = this@MainActivity
+        initMap()
         initBroadcastReceiver()
+        binding.mainActivity = this@MainActivity
         viewModel.run {
             getAllBeachCongestion()
         }
@@ -95,11 +106,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         map?.run {
             removeAllPOIItems()
             surfaceDestroyed(this.holder)
+            setPOIItemEventListener(null)
         }
         binding.mapView.removeView(map)
         map = null
         gpsListener = null
         permissionListener = null
+        poiItemListener = null
     }
 
     /**
@@ -186,6 +199,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
+    private fun initMap() {
+        poiItemListener = PoiItemListener(viewModel , this@MainActivity)
+        map = MapView(this@MainActivity).also {
+            it.setPOIItemEventListener(poiItemListener)
+            it.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
+            lifecycleScope.launch(exceptionHandler){
+                withContext(Dispatchers.Default){
+                    binding.mapView.addView(it)
+                }
+            }
+        }
+    }
+
     private fun initBroadcastReceiver() {
         mainActivityReceiver = MainActivityReceiver(viewModel)
         val intentFilter = IntentFilter()
@@ -212,7 +238,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         } else {
             if(permissionListener == null){
-                permissionListener = PermissionListener()
+                permissionListener = PermissionListener(viewModel , this@MainActivity , lifecycleScope)
             }
             Utils.checkPermission(permissionListener!!)
         }
@@ -300,7 +326,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 }
             } else {
                 if(permissionListener == null){
-                    permissionListener = PermissionListener()
+                    permissionListener = PermissionListener(viewModel , this@MainActivity , lifecycleScope)
                 }
                 Utils.checkPermission(permissionListener!!)
             }
@@ -338,24 +364,90 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     /**
      * 권한을 확인하는 Listener
      * **/
-    private inner class PermissionListener : com.gun0912.tedpermission.PermissionListener {
+    private class PermissionListener(
+        private val viewModel : MainViewModel ,
+        private val context : Context ,
+        private val coroutineScope: CoroutineScope
+        ) : com.gun0912.tedpermission.PermissionListener {
         override fun onPermissionGranted() {
-            lifecycleScope.launch(Dispatchers.IO){
+            coroutineScope.launch(Dispatchers.IO){
                 viewModel.setPermission(true)
             }
         }
 
         override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-            lifecycleScope.launch(Dispatchers.IO){
+            coroutineScope.launch(Dispatchers.IO){
                 viewModel.setPermission(false)
             }
-            AlertDialog.Builder(this@MainActivity)
+            AlertDialog.Builder(context)
                 .setMessage("위치정보에 대한 권한이 필요합니다.")
-                .setPositiveButton(getString(R.string.confirm)){ dialog , _ ->
+                .setPositiveButton(context.getString(R.string.confirm)){ dialog , _ ->
                     Utils.checkPermission(this)
                     dialog.dismiss()
                 }
                 .create().show()
         }
+    }
+
+    /**
+     * 커스텀 마커 말풍선 Adapter
+     * **/
+    private class CustomBalloonAdapter(layoutInflater: LayoutInflater) : CalloutBalloonAdapter {
+        private val binding = CustomBalloonLayoutBinding.inflate(layoutInflater)
+
+        override fun getCalloutBalloon(poiiItem: MapPOIItem?): View {
+            with(binding){
+                poiNameTextView.text = poiiItem?.itemName
+            }
+            return binding.root
+        }
+
+        override fun getPressedCalloutBalloon(p0: MapPOIItem?): View {
+            return binding.root
+        }
+    }
+
+    /**
+     * POI Item 클릭 이벤트
+     * **/
+    private class PoiItemListener(
+        private val viewModel: MainViewModel ,
+        private val activity: MainActivity
+    ) : MapView.POIItemEventListener {
+        override fun onPOIItemSelected(mapView : MapView?, poiItem : MapPOIItem?) { }
+
+        override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) { }
+
+        override fun onCalloutBalloonOfPOIItemTouched(
+            mapView: MapView?,
+            poiItem: MapPOIItem?,
+            buttonType: MapPOIItem.CalloutBalloonButtonType?
+        ) {
+            poiItem?.let {item ->
+                val longitude = item.mapPoint.mapPointWCONGCoord.x
+                val latitude = item.mapPoint.mapPointWCONGCoord.y
+                viewModel.run {
+                    Log.d(TAG, "onCalloutBalloonOfPOIItemTouched: name : ${poiItem.itemName} , x : $longitude , y : $latitude")
+                    getCurrentNavi() // 현재 설정된 Navi 가져오기
+
+                    currentNavi.value?.let { navi ->
+                        val url: String
+                        when (navi) {
+                            Navi.KAKAO_MAP.name -> {
+                                url = "kakaomap://search?q=${poiItem.itemName}&p=${latitude},${longitude}"
+                                Utils.startNavigationWithIntent(url, activity , navi)
+                            }
+                            Navi.TMAP.name -> {
+                                url = "tmap://search?name=${poiItem.itemName}"
+                                Utils.startNavigationWithIntent(url, activity , navi)
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+            }
+        }
+
+        override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) { }
     }
 }

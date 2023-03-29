@@ -11,16 +11,14 @@ import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.Wcong
 import com.lee.domain.model.kakao.WcongDocuments
-import com.lee.domain.usecase.GetBeachCongestion
-import com.lee.domain.usecase.GetIsPermission
-import com.lee.domain.usecase.GetWcong
-import com.lee.domain.usecase.SetIsPermission
+import com.lee.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import net.daum.mf.map.api.MapPOIItem
 import javax.inject.Inject
 
 private const val TAG = "MainViewModel"
@@ -30,7 +28,8 @@ class MainViewModel @Inject constructor(
     private val getBeachCongestion: GetBeachCongestion ,
     private val getWcong: GetWcong ,
     private val getIsPermission: GetIsPermission ,
-    private val setIsPermission: SetIsPermission
+    private val setIsPermission: SetIsPermission ,
+    private val getCurrentNavi: GetCurrentNavi
 ) : ViewModel() {
     private val _beachList = MutableLiveData<BeachList>()
     val beachList : LiveData<BeachList>
@@ -49,10 +48,6 @@ class MainViewModel @Inject constructor(
     fun setPoiList(list : ArrayList<Documents>){
         _poiList.value = list
     }
-
-    private val _wcongList = MutableLiveData<ArrayList<WcongDocuments>>()
-    val wcongList : LiveData<ArrayList<WcongDocuments>>
-    get() = _wcongList
 
     private val _currentLocation = MutableLiveData<Location>()
     val currentLocation : LiveData<Location>
@@ -81,6 +76,10 @@ class MainViewModel @Inject constructor(
     private val _isPermission = MutableLiveData(true)
     val isPermission : LiveData<Boolean>
     get() = _isPermission
+
+    private val _currentNavi = MutableLiveData<String>()
+    val currentNavi : LiveData<String>
+    get() = _currentNavi
 
     private val exceptionHandler = CoroutineExceptionHandler{
         _ , throwExceptionHandler -> throwExceptionHandler.localizedMessage?.let { _toastMessage.value = it }
@@ -113,10 +112,18 @@ class MainViewModel @Inject constructor(
         setIsPermission.invoke(permission)
     }
 
+    /**
+     * 이미 권한 체크가 완료되었는지 확인하는 함수
+     * **/
     fun checkIsPermission(){
-        Log.d(TAG, "checkIsPermission()")
         viewModelScope.launch {
             _isPermission.value = getIsPermission.invoke().first()
+        }
+    }
+
+    fun getCurrentNavi() {
+        viewModelScope.launch {
+            _currentNavi.value = getCurrentNavi.invoke().first()
         }
     }
 }
