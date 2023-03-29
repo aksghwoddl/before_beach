@@ -75,11 +75,11 @@ class BeachListBottomSheetDialogFragment(private val beachList: BeachList) : Bas
                     when(navi){
                         Navi.KAKAO_MAP.name -> {
                             url = "kakaomap://search?q=${it.placeName}&p=${it.latitude},${it.longitude}"
-                            startNavigationWithIntent(url)
+                            Utils.startNavigationWithIntent(url , requireActivity() , navi)
                         }
                         Navi.TMAP.name -> {
                             url = "tmap://search?name=${it.placeName}"
-                            startNavigationWithIntent(url)
+                            Utils.startNavigationWithIntent(url , requireActivity() , navi)
                         }
                     }
                 }
@@ -119,30 +119,6 @@ class BeachListBottomSheetDialogFragment(private val beachList: BeachList) : Bas
         binding.beachRecyclerView.run {
             layoutManager = LinearLayoutManager(requireContext() , RecyclerView.VERTICAL, false)
             adapter = beachRecyclerAdapter
-        }
-    }
-
-    /**
-     * URL을 통해 설정된 네비게이션을 확인하여 길안내 화면으로 이동하는 함수
-     * - url : 전달받은 길안내 URL Scheme
-     * **/
-    private fun startNavigationWithIntent(url : String) {
-        with(Intent(Intent.ACTION_VIEW, Uri.parse(url))){
-            addCategory(Intent.CATEGORY_BROWSABLE)
-            val packageManager = requireActivity().packageManager
-            val list = packageManager.queryIntentActivities(this , PackageManager.MATCH_DEFAULT_ONLY)
-            if (list.isEmpty()){ // 앱이 설치되어 있지 않다면
-                when(viewModel.currentNavi.value!!){
-                    Navi.KAKAO_MAP.name -> {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Utils.KAKAO_MAP_MARKET_URI)))
-                    }
-                    Navi.TMAP.name -> {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Utils.TMAP_MARKET_URI)))
-                    }
-                }
-            }else{ // 앱이 설치되어 있다면
-                startActivity(this)
-            }
         }
     }
 }

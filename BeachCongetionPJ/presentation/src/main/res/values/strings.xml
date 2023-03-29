@@ -24,6 +24,8 @@
     <string name="fail_find_current_location">현재 위치를 찾는데 실패했습니다.</string>
     <string name="setting_navi">기본 네비게이션</string>
     <string name="version_menu">버전확인</string>
+    <string name="poi_name">장소명</string>
+    <string name="find_road_guide">클릭해서 길찾기</string>
 
     <!-- Search -->
     <string name="search_hint">해수욕장 이름을 입력해주세요.</string>

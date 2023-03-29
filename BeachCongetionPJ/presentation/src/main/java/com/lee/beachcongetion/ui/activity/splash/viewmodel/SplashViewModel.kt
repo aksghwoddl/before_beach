@@ -5,10 +5,6 @@ import com.lee.domain.usecase.SetIsPermission
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-
-/**
- * Splash 화면 ViewModel
- * **/
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val setIsPermission: SetIsPermission

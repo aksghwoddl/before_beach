@@ -3,7 +3,10 @@ package com.lee.beachcongetion.common
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.IBinder
 import android.util.DisplayMetrics
 import android.view.View
@@ -12,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
+import com.lee.data.common.Navi
 
 /**
  * 혼잡도 관리를 위한 Enum class
@@ -111,6 +115,32 @@ class Utils {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
                 check()
+            }
+        }
+
+        /**
+         * URL을 통해 설정된 네비게이션을 확인하여 길안내 화면으로 이동하는 함수
+         * - url : 전달받은 길안내 URL Scheme
+         * - activity : 호출된 activity
+         * - currentNavi : 현재 설정된 기본 Navi
+         * **/
+        fun startNavigationWithIntent(url : String , activity: Activity , currentNavi : String) {
+            with(Intent(Intent.ACTION_VIEW, Uri.parse(url))){
+                addCategory(Intent.CATEGORY_BROWSABLE)
+                val packageManager = activity.packageManager
+                val list = packageManager.queryIntentActivities(this , PackageManager.MATCH_DEFAULT_ONLY)
+                if (list.isEmpty()){ // 앱이 설치되어 있지 않다면
+                    when(currentNavi){
+                        Navi.KAKAO_MAP.name -> {
+                            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(KAKAO_MAP_MARKET_URI)))
+                        }
+                        Navi.TMAP.name -> {
+                            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(TMAP_MARKET_URI)))
+                        }
+                    }
+                }else{ // 앱이 설치되어 있다면
+                    activity.startActivity(this)
+                }
             }
         }
     }
