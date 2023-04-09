@@ -2,8 +2,6 @@ package com.lee.beachcongetion.ui.fragment.search
 
 import android.app.Dialog
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -24,7 +22,6 @@ import com.lee.beachcongetion.ui.fragment.search.viewmodel.SearchViewModel
 import com.lee.data.common.Navi
 import com.lee.domain.model.beach.Beach
 import com.lee.domain.model.beach.BeachList
-import com.lee.domain.model.kakao.CurrentLatLng
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow

@@ -1,24 +1,19 @@
 package com.lee.beachcongetion.ui.activity.main.viewmodel
 
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.domain.model.beach.BeachList
-import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.Documents
 import com.lee.domain.model.kakao.Wcong
-import com.lee.domain.model.kakao.WcongDocuments
 import com.lee.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import net.daum.mf.map.api.MapPOIItem
 import javax.inject.Inject
 
 private const val TAG = "MainViewModel"
@@ -60,13 +55,6 @@ class MainViewModel @Inject constructor(
     fun setCurrentLocation(location : Location , requestFromCurrentButton : Boolean){
         _currentLocation.value = location
         _requestCurrentButton.value = requestFromCurrentButton
-    }
-
-    private val _currentLatLng = MutableLiveData<CurrentLatLng>()
-    val currentLatLng : LiveData<CurrentLatLng>
-    get() = _currentLatLng
-    fun setCurrentLatLng(latLng: CurrentLatLng) {
-        _currentLatLng.value = latLng
     }
 
     private val _requestCurrentButton = MutableLiveData<Boolean>()

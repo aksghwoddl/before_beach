@@ -1,12 +1,15 @@
 package com.lee.data.model.kakao
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class KaKaoPoiDTO(
     val documents : MutableList<DocumentsDTO>,
     val meta : MetaDTO
 )
 
+@Keep
 data class DocumentsDTO(
     @SerializedName("address_name")
     val addressName : String ,
@@ -31,6 +34,7 @@ data class DocumentsDTO(
     val latitude : String
 )
 
+@Keep
 data class MetaDTO(
     @SerializedName("is_end")
     val isEnd : Boolean,
@@ -42,6 +46,7 @@ data class MetaDTO(
     val totalCount : Int
 )
 
+@Keep
 data class SameNameDTO(
     val keyword : String ,
     val region : MutableList<String> ,

@@ -1,12 +1,15 @@
 package com.lee.domain.model.kakao
 
+import androidx.annotation.Keep
 import java.io.Serializable
 
+@Keep
 data class KaKaoPoi(
     val documents : ArrayList<Documents>,
     val meta : Meta
 ) : Serializable
 
+@Keep
 data class Documents(
     val addressName : String ,
     val categoryGroupCode : String ,
@@ -22,6 +25,7 @@ data class Documents(
     var latitude : String
 ) : Serializable
 
+@Keep
 data class Meta(
     val isEnd : Boolean,
     val pageableCount : Int,
@@ -29,6 +33,7 @@ data class Meta(
     val totalCount : Int
 ) : Serializable
 
+@Keep
 data class SameName(
     val keyword : String ,
     val region : MutableList<String> ,

@@ -29,7 +29,6 @@ import com.lee.beachcongetion.ui.activity.version.CheckVersionActivity
 import com.lee.beachcongetion.ui.fragment.list.BeachListBottomSheetDialogFragment
 import com.lee.beachcongetion.ui.fragment.search.SearchBottomSheetDialogFragment
 import com.lee.data.common.Navi
-import com.lee.domain.model.kakao.CurrentLatLng
 import com.lee.domain.model.kakao.KaKaoPoi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -147,12 +146,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 }
             }
 
-            currentLocation.observe(this@MainActivity){ // 현재위치
-                changeCurrentLatLng(it)
-            }
-
-            currentLatLng.observe(this@MainActivity) { // 현재 위치의 좌표객체
-                setCurrentLocationMarker(it)
+            currentLocation.observe(this@MainActivity){ location -> // 현재위치
+                changeCurrentLocation(location)
             }
         }
     }
@@ -262,8 +257,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     /**
      * 현재위치 마커를 setting하는 함수 (현재 위치 버튼 클릭여부에 따라 지도 확대하거나 하지 않는다.)
      * **/
-    private fun setCurrentLocationMarker(currentLocation : CurrentLatLng) {
-        val searchMapPoint = MapPoint.mapPointWithWCONGCoord(currentLocation.getWcongLongitude() , currentLocation.getWcongLatitude())
+    private fun setCurrentLocationMarker(mapPoint: MapPoint) {
         if(!::currentLocationMarker.isInitialized){
             currentLocationMarker = MapPOIItem()
             currentLocationMarker.run{
@@ -276,13 +270,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         }
 
-        currentLocationMarker.mapPoint = searchMapPoint
+        currentLocationMarker.mapPoint = mapPoint
         map?.run { // 지도에 마커 찍기
             removePOIItem(currentLocationMarker) // 이전 현재위치 마커는 삭제
             addPOIItem(currentLocationMarker)
             if(viewModel.requestCurrentButton.value!!){ // 현재 위치 버튼을 통해 호출될 경우
                 setMapCenterPoint(
-                    searchMapPoint
+                    mapPoint
                     ,true)
             }
         }
@@ -291,18 +285,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     /**
      * 현재 위치의 좌표값 객체를 변경하는 함수
      * **/
-    private fun changeCurrentLatLng(currentLocation: Location) {
+    private fun changeCurrentLocation(currentLocation: Location) {
         lifecycleScope.launch{
             val wcong = viewModel.getWcongPoint(BuildConfig.KAKAO_API_KEY , currentLocation.longitude.toString() , currentLocation.latitude.toString())
             val searchPoint = wcong.documents[0]
-            val currentLatLng = CurrentLatLng.getInstance()
-            currentLatLng.run {
-                setLongitude(currentLocation.longitude)
-                setLatitude(currentLocation.latitude)
-                setWconLongitude(searchPoint.longitude.toDouble())
-                setWcongLatitude(searchPoint.latitude.toDouble())
-            }
-            viewModel.setCurrentLatLng(currentLatLng)
+            val searchMapPoint = MapPoint.mapPointWithWCONGCoord(searchPoint.longitude.toDouble() , searchPoint.latitude.toDouble())
+            setCurrentLocationMarker(searchMapPoint)
         }
     }
     
@@ -416,6 +404,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     ) : MapView.POIItemEventListener {
         override fun onPOIItemSelected(mapView : MapView?, poiItem : MapPOIItem?) { }
 
+        @Deprecated("Deprecated in Java")
         override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) { }
 
         override fun onCalloutBalloonOfPOIItemTouched(

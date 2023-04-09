@@ -1,5 +1,6 @@
 package com.lee.data.model.beach
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -7,6 +8,7 @@ import com.google.gson.annotations.SerializedName
  * it has all beaches list and each beach's key
  * **/
 
+@Keep
 class BeachListDTO {
     private lateinit var mBeachList : MutableList<BeachDTO>
 

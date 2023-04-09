@@ -28,8 +28,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.main.MainActivity"
-            android:exported="true">
+            android:name=".ui.activity.main.MainActivity">
 
             <meta-data
                 android:name="android.app.lib_name"
@@ -44,7 +43,7 @@
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"
-            android:value="8829ac31b31fc956bda0e60fb844daeb"
+            android:value="${kakao_sdk_key}"
             />
     </application>
 

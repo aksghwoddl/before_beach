@@ -2,10 +2,10 @@ package com.lee.beachcongetion.di
 
 import com.lee.data.datasource.beach.BeachDataSource
 import com.lee.data.datasource.beach.BeachDataSourceImpl
-import com.lee.data.datasource.preference.PreferenceDataSource
-import com.lee.data.datasource.preference.PreferenceDataSourceImpl
 import com.lee.data.datasource.kakao.KakaoDataSource
 import com.lee.data.datasource.kakao.KakaoDataSourceImpl
+import com.lee.data.datasource.preference.PreferenceDataSource
+import com.lee.data.datasource.preference.PreferenceDataSourceImpl
 import com.lee.data.repository.BeachRepositoryImpl
 import com.lee.domain.repository.BeachRepository
 import dagger.Binds

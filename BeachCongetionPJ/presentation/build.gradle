@@ -7,11 +7,16 @@ plugins {
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
+def kakaoSdkAppKey = properties.getProperty('kakao_sdk_app_key')
+def kakaoReleaseHashKey = properties.getProperty('kakao_release_sdk_hash_key')
 
 android {
     namespace 'com.lee.beachcongetion'
     compileSdk 33
+
+    lintOptions {
+        disable 'NullSafeMutableLiveData'
+    }
 
     defaultConfig {
         applicationId "com.lee.beachcongetion"
@@ -21,6 +26,7 @@ android {
         versionName "1.0"
 
         buildConfigField "String", "KAKAO_API_KEY", properties['kakao_api_key']
+        manifestPlaceholders = [kakao_sdk_key:kakaoSdkAppKey] // KakaoMap Native Key
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

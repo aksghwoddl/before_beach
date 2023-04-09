@@ -5,7 +5,6 @@ import com.lee.beachcongetion.common.CONNECTION_TIMEOUT
 import com.lee.beachcongetion.common.KAKAO_BASE_URL
 import com.lee.data.api.BeachApi
 import com.lee.data.api.KakaoMapApi
-import com.lee.domain.model.kakao.CurrentLatLng
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,11 +54,5 @@ class AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(BeachApi::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideCurrentLatLng() : CurrentLatLng {
-        return CurrentLatLng()
     }
 }
