@@ -62,7 +62,7 @@
 
 ### 🎥 시연 화면
 <div align="center">
- <img width="30%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/224614932-065ecda4-aafb-48c5-a1e8-c6060b05d7e0.gif">
+ <img width="30%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/230951738-983ab399-75b1-480f-ada1-b64ebd4c8fdc.gif">
 </div>
 
 
