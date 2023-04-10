@@ -1,6 +1,6 @@
 # 비비 🌊 
 
- <img width="10%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/220795518-a5196e30-8782-407d-bf65-b4685c28b7ef.png">
+ <img width="50%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/230947121-2776f9e4-33bd-4837-9fc8-6da33ee8668b.png">
 
 ## 🤔 프로젝트 설명
 
