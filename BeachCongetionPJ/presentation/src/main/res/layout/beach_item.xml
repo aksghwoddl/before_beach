@@ -53,6 +53,7 @@
                     android:text="@string/congestion_value"
                     android:textSize="11sp"
                     android:textStyle="bold"
+                    android:textColor="@color/main_text_color"
                     />
         </LinearLayout>
 
