@@ -22,8 +22,8 @@ android {
         applicationId "com.lee.beachcongetion"
         minSdk 23
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.1"
 
         buildConfigField "String", "KAKAO_API_KEY", properties['kakao_api_key']
         manifestPlaceholders = [kakao_sdk_key:kakaoSdkAppKey] // KakaoMap Native Key
