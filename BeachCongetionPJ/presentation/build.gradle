@@ -22,8 +22,8 @@ android {
         applicationId "com.lee.beachcongetion"
         minSdk 23
         targetSdk 33
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.0.2"
 
         buildConfigField "String", "KAKAO_API_KEY", properties['kakao_api_key']
         manifestPlaceholders = [kakao_sdk_key:kakaoSdkAppKey] // KakaoMap Native Key
@@ -102,4 +102,8 @@ dependencies {
 
     // Preferences Data Store
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    // Splash
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha01'
+
 }

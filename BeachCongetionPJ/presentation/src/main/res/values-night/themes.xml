@@ -14,4 +14,14 @@
         <!-- Customize your theme here. -->
         <item name="android:textColor">@color/black</item>
     </style>
+
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/main_color</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_monochrome</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.BeachCongetionPJ</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="android:navigationBarColor">@color/main_color</item>
+    </style>
 </resources>

@@ -3,9 +3,12 @@ package com.lee.beachcongetion.ui.activity.splash
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.lee.beachcongetion.R
 import com.lee.beachcongetion.common.Utils
@@ -23,13 +26,15 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding : ActivitySplashBinding
     private val viewModel : SplashViewModel by viewModels()
     private var permissionListener : PermissionListener? = null
+    private var isReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater).also {
             setContentView(it.root)
         }
-        checkNetwork()
+        initSplashScreen()
     }
 
     override fun onDestroy() {
@@ -58,18 +63,43 @@ class SplashActivity : AppCompatActivity() {
     }
 
     /**
+     * SplashScreen 초기화 하는 함수
+     * **/
+    private fun initSplashScreen() {
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener( // SplashScreen이 생성되고 그려질 때 계속해서 호출된다.
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isReady) {
+                        // Splash 화면 제거
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        // 아직 권한 및 네트워크 체크가 끝나지 않았다면
+                        false
+                    }
+                }
+            }
+        )
+
+        lifecycleScope.launch { // 네트워크 및 권환 체크
+            checkNetwork()
+        }
+    }
+
+    /**
      * 권한을 확인하는 Listener
      * **/
     private inner class PermissionListener : com.gun0912.tedpermission.PermissionListener {
         override fun onPermissionGranted() {
             lifecycleScope.launch {
-                delay(1000L)
+                delay(1000)
+                isReady = true
                 with(Intent(this@SplashActivity , MainActivity::class.java)){
                     startActivity(this)
                     finish()
                 }
             }
-
         }
 
         override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {

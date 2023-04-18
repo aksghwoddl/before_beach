@@ -13,4 +13,14 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/main_color</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_monochrome</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.BeachCongetionPJ</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:navigationBarColor">@color/main_color</item>
+    </style>
 </resources>
