@@ -8,7 +8,6 @@ plugins {
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 def kakaoSdkAppKey = properties.getProperty('kakao_sdk_app_key')
-def kakaoReleaseHashKey = properties.getProperty('kakao_release_sdk_hash_key')
 
 android {
     namespace 'com.lee.beachcongetion'
