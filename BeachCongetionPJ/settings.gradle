@@ -16,3 +16,4 @@ rootProject.name = "BeachCongetionPJ"
 include ':presentation'
 include ':data'
 include ':domain'
+include ':app'
