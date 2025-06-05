@@ -1,4 +1,4 @@
-package com.lee.bb.ui.theme
+package com.lee.bb.libray.design.theme
 
 import androidx.compose.ui.graphics.Color
 
