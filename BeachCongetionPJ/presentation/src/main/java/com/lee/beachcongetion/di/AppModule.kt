@@ -3,8 +3,8 @@ package com.lee.beachcongetion.di
 import com.lee.beachcongetion.common.BEACH_BASE_URL
 import com.lee.beachcongetion.common.CONNECTION_TIMEOUT
 import com.lee.beachcongetion.common.KAKAO_BASE_URL
-import com.lee.data.api.BeachApi
-import com.lee.data.api.KakaoMapApi
+import com.lee.data.service.BeachApiService
+import com.lee.data.service.KakaoMapApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,12 +47,12 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideBeachApi(okHttpClient: OkHttpClient) : BeachApi {
+    fun provideBeachApi(okHttpClient: OkHttpClient) : BeachApiService {
         return Retrofit.Builder()
             .baseUrl(BEACH_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(BeachApi::class.java)
+            .create(BeachApiService::class.java)
     }
 }

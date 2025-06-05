@@ -1,9 +1,8 @@
-package com.lee.data.api
+package com.lee.data.service
 
 import com.lee.data.common.DataUtils
 import com.lee.data.model.kakao.KaKaoPoiDTO
 import com.lee.data.model.kakao.WcongDTO
-import com.lee.domain.model.kakao.KaKaoPoi
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
