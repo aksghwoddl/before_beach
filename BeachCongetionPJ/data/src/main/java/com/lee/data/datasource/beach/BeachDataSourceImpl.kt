@@ -1,14 +1,14 @@
 package com.lee.data.datasource.beach
 
-import com.lee.data.api.BeachApi
+import com.lee.data.service.BeachApiService
 import com.lee.data.mapper.BeachMapper
 import com.lee.domain.model.beach.BeachList
 import javax.inject.Inject
 
 class BeachDataSourceImpl @Inject constructor(
-    private val beachApi: BeachApi
+    private val beachApiService: BeachApiService
 ) : BeachDataSource {
     override suspend fun getBeachCongestion(): BeachList {
-        return BeachMapper.mapperToBeachList(beachApi.getBeachCongestion())
+        return BeachMapper.mapperToBeachList(beachApiService.getBeachCongestion())
     }
 }

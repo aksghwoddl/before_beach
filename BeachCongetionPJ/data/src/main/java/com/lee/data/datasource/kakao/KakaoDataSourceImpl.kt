@@ -1,6 +1,6 @@
 package com.lee.data.datasource.kakao
 
-import com.lee.data.api.KakaoMapApi
+import com.lee.data.service.KakaoMapApi
 import com.lee.data.mapper.KakaoMapper
 import com.lee.domain.model.kakao.KaKaoPoi
 import com.lee.domain.model.kakao.Wcong
