@@ -17,16 +17,19 @@ android {
 
 dependencies {
     implementation(project(":core:data"))
+    implementation(project(":library:base"))
 
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
 
-    // Retrofit + Gson
+    // Retrofit
     implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
-    implementation(libs.gson)
+
+    // Kotlin Serialization
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.converter)
 
     // OKHttp
     implementation(libs.okhttp3)

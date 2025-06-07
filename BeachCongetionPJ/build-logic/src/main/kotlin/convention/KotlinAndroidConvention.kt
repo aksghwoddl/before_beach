@@ -22,6 +22,10 @@ internal fun Project.kotlinAndroidConfiguration(
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 fun CommonExtension<*, *, *, *, *, *>.kotlinOptions(block: KotlinJvmOptions.() -> Unit) {

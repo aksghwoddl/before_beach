@@ -1,4 +1,4 @@
-package com.lee.data.impl.service
+package com.lee.bb.data.impl.datasource.impl.service
 
 import com.lee.bb.data.common.DataConst
 import com.lee.bb.data.dto.BeachListDTO

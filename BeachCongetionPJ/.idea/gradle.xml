@@ -32,6 +32,7 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/main" />
             <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/library/base" />
             <option value="$PROJECT_DIR$/library/design" />
             <option value="$PROJECT_DIR$/library/design-system" />
             <option value="$PROJECT_DIR$/presentation" />

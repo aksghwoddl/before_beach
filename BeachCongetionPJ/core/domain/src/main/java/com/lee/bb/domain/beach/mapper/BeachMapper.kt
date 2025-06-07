@@ -13,7 +13,7 @@ private fun BeachDTO.toBeach(): Beach {
 
 internal fun BeachListDTO.toBeachList(): List<Beach> {
     return buildList {
-        this@toBeachList.getAllBeachList().forEach {
+        this@toBeachList.allBeachList.forEach {
             add(it.toBeach())
         }
     }

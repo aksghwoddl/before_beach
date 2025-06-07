@@ -21,10 +21,12 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
 
-    // Retrofit + Gson
+    // Retrofit
     implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
-    implementation(libs.gson)
+
+    // Kotlin Serialization
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.converter)
 
     // Coroutines
     implementation(libs.coroutines.android)
