@@ -6,19 +6,26 @@ plugins {
 }
 
 android {
-    namespace = "com.lee.bb.core.data"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    namespace = "com.lee.bb.data"
+    compileSdk = 35
 
     defaultConfig {
-        minSdk = 23
+        minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 }
 
 dependencies {
-    implementation(project(":domain"))
-
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -1,6 +1,6 @@
 package com.lee.beachcongetion.di
 
-import com.lee.data.datasource.beach.BeachDataSource
+import com.lee.bb.data.datasource.beach.BeachDataSource
 import com.lee.data.datasource.beach.BeachDataSourceImpl
 import com.lee.data.datasource.kakao.KakaoDataSource
 import com.lee.data.datasource.kakao.KakaoDataSourceImpl

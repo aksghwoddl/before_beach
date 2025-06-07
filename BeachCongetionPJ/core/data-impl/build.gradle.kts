@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.lee.bb.domain"
+    namespace = "com.lee.bb.data.impl"
     compileSdk = 35
 
     defaultConfig {
@@ -28,12 +28,24 @@ android {
 
 dependencies {
     implementation(project(":core:data"))
-    implementation(project(":core:data-impl"))
 
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Retrofit + Gson
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.gson)
+
+    // OKHttp
+    implementation(libs.okhttp3)
+    implementation(libs.okhttp3.logging.interceptor)
+
+    // Coroutines
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.core)
 
     // Hilt
     implementation(libs.hilt.android)

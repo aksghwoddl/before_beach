@@ -1,6 +1,6 @@
 package com.lee.data.repository
 
-import com.lee.data.datasource.beach.BeachDataSource
+import com.lee.bb.data.datasource.beach.BeachDataSource
 import com.lee.data.datasource.preference.PreferenceDataSource
 import com.lee.data.datasource.kakao.KakaoDataSource
 import com.lee.domain.model.beach.BeachList
