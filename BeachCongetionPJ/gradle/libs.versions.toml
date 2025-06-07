@@ -1,6 +1,7 @@
 [versions]
 # SDK / Java
 compileSdk = "35"
+kotlinGradlePlugin = "2.1.10"
 minSdk = "24"
 targetSdk = "35"
 
@@ -45,6 +46,8 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 [libraries]
 # Core
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+android-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "android_application" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinGradlePlugin" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 
