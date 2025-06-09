@@ -3,6 +3,7 @@ package com.lee.bb.core.domain
 import com.lee.bb.core.data.dto.BeachDTO
 import com.lee.bb.core.data.dto.BeachListDTO
 import com.lee.bb.core.data.repository.BeachRepository
+import com.lee.bb.core.domain.beach.model.Congestion
 import com.lee.bb.core.domain.beach.usecase.GetBeachCongestionListUseCase
 import com.lee.bb.library.test.base.BaseTest
 import com.lee.bb.library.test.utils.shouldBe
@@ -43,7 +44,7 @@ class GetBeachCongestionListUseCaseTest : BaseTest() {
        with(useCase()) {
            size shouldBe 3
            get(0).name shouldBe "해변1"
-           get(0).congestion shouldBe "1"
+           get(0).congestion shouldBe Congestion.LOW
        }
     }
 }
