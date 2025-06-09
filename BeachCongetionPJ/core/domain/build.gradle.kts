@@ -21,9 +21,7 @@ dependencies {
     implementation(project(":core:data-impl"))
 
     // Test
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.espresso.core)
+    testImplementation(project(":library:test"))
 
     // Hilt
     implementation(libs.hilt.android)
