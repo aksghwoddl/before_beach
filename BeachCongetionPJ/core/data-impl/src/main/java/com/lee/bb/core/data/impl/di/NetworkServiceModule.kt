@@ -24,7 +24,7 @@ object NetworkServiceModule {
         okHttpClient: OkHttpClient,
         json: Json,
     ): BeachApiService = Retrofit.Builder()
-        .baseUrl(DataConst.GET_BEACH_CONGESTION_URL)
+        .baseUrl("https://www.tournmaster.com")
         .client(okHttpClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
